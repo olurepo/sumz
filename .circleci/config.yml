@@ -22,7 +22,7 @@ jobs:
             MY_ENV_VAR: "Hello, world!"
           command: |
             echo $VAR_AUTH0_CLIENT_ID
-            echo MY_ENV_VAR
+            echo $MY_ENV_VAR
 
       - run:
           name: "Show my Custom Env. Variables"
