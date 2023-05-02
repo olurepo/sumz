@@ -5,33 +5,23 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/configuration-reference/#executor-job
+  test_var:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/configuration-reference/#steps
+      - image: cimg/node:18.11.0
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: "What branch?"
+          command: echo $CIRCLE_BRANCH
+      - run:
+          name: "Setup Custom Env. Variables"
+          command: echo 'export MY_ENV_VAR="Hello, World!"' >> "$BASH_ENV"
+      - run:
+          name: "Show my Custom Env. Variables"
+          command: echo $MY_ENV_VAR
   
-    test_var:
-
-      docker:
-        - image: cimg/node:18.11.0
-      steps:
-        - checkout
-        - run:
-            name: "Say hello"
-            command: "echo Hello, World!"
-
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  env-var-workflow:
     jobs:
-      - say-hello
-      - test_var
+      - test_var:
+          name: test_env_var
