@@ -19,9 +19,15 @@ jobs:
       - run:
           name: "Show my Custom Env. Variables"
           command: echo $MY_ENV_VAR
+      - run:
+          name: "Show Context Env. Variables"
+          command: |
+            echo $VAR_AUTH0_CLIENT_ID
+            echo $VAR_AUTH0_DOMAIN
   
 workflows:
   env-var-workflow:
     jobs:
       - test_var:
           name: test_env_var
+          context: dev
