@@ -15,7 +15,15 @@ jobs:
           command: echo $CIRCLE_BRANCH
       - run:
           name: "Setup Custom Env. Variables"
-          command: echo 'export MY_ENV_VAR="Hello, World!"' >> "$BASH_ENV"
+          command: echo 'export MY_ENV_VAR="This works!"' >> "$BASH_ENV"
+      - run:
+          name: "Check Context Vars"
+          environment:
+            MY_ENV_VAR: $MY_ENV_VAR
+          command: |
+            echo $VAR_AUTH0_CLIENT_ID
+            echo MY_ENV_VAR
+
       - run:
           name: "Show my Custom Env. Variables"
           command: echo $MY_ENV_VAR
