@@ -21,7 +21,7 @@ jobs:
           environment:
             NEW_ENV_VAR: "Hello, world!"
           command: |
-            echo 'export $VAR_AUTH0_CLIENT_ID' >> "$BASH ENV"
+            echo 'sudo export $VAR_AUTH0_CLIENT_ID' >> "$BASH ENV"
             echo $NEW_ENV_VAR
 
       - run:
