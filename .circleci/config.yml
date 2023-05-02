@@ -15,7 +15,9 @@ jobs:
           command: echo 'export MY_ENV_VAR="This works!"' >> "$BASH_ENV"
       - run:
           name: "Prepare for Cache"
-          command: echo '$VAR_AUTH0_CLIENT_ID' > VAR_AUTH0_CLIENT_ID.txt
+          command: |
+            echo '$VAR_AUTH0_CLIENT_ID' > VAR_AUTH0_CLIENT_ID.txt
+            cat VAR_AUTH0_CLIENT_ID.txt
       - run:
           name: "Check Context Vars"
           environment:
