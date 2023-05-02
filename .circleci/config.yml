@@ -24,10 +24,13 @@ jobs:
             NEW_ENV_VAR: "Hello, world!"
           command: |
             echo $NEW_ENV_VAR
-            echo 'export VAR_AUTH0_CLIENT_ID=${{context.dev.VAR_AUTH0_CLIENT_ID}}'
+            echo 'export VAR_AUTH0_CLIENT_ID=${{context.dev.VAR_AUTH0_CLIENT_ID}}' >> "$BASH_ENV"
+            echo $VAR_AUTH0_CLIENT_ID
       - run:
           name: "Show my Custom Env. Variables"
-          command: echo $MY_ENV_VAR
+          command: |
+            echo $MY_ENV_VAR
+            echo $VAR_AUTH0_CLIENT_ID
       - run:
           name: "Show Context Env. Variables"
           command: |
