@@ -17,6 +17,16 @@ jobs:
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
+  
+    test_var:
+
+      docker:
+        - image: cimg/node:18.11.0
+      steps:
+        - checkout
+        - run:
+            name: "Say hello"
+            command: "echo Hello, World!"
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
@@ -24,3 +34,4 @@ workflows:
   say-hello-workflow:
     jobs:
       - say-hello
+      - test_var
