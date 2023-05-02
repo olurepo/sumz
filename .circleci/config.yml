@@ -34,7 +34,7 @@ jobs:
       - run:
           name: "Show Context Env. Variables"
           command: |
-            echo $VAR_AUTH0_CLIENT_ID
+            echo $(circleci unmask $VAR_AUTH0_CLIENT_ID)
             echo $VAR_AUTH0_DOMAIN
   
 workflows:
