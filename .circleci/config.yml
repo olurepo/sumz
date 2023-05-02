@@ -19,7 +19,7 @@ jobs:
       - run:
           name: "Check Context Vars"
           environment:
-            MY_ENV_VAR: $MY_ENV_VAR
+            MY_ENV_VAR: "Hello, world!"
           command: |
             echo $VAR_AUTH0_CLIENT_ID
             echo MY_ENV_VAR
