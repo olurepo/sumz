@@ -1,0 +1,63 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+  snyk: snyk/snyk@1.5.0
+
+# Define a job to be invoked later in a workflow.
+jobs:
+  run_test:
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run: sudo npm install
+      - run: mkdir ~/junit
+      - run:
+          command: mocha test --reporter mocha-junit-reporter || true
+          environment:
+            MOCHA_FILE: ~/junit/test-results.xml
+          when: always
+      - store_test_results:
+          path: ~/junit
+
+
+  vulnerability_scan:
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run:
+          name: Instance npm Dependencies
+          command: |
+            sudo npm install -g
+      - snyk/scan
+
+  build_app:
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run:
+          name: Install npm Dependencies
+          command: |
+            sudo npm install -g
+      - run:
+          name: Run NPM Build
+          command: |
+            npm build
+
+workflows:
+  env-var-workflow:
+    jobs:
+      - run_test:
+          name: run_test
+          context: dev
+      - vulnerability_scan:
+          name: vulnerability_scan
+      - build_app:
+          name: build_app
+          context: dev
+          requires:
+            - vulnerability_scan
