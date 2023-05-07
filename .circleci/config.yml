@@ -1,45 +1,63 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/configuration-reference
 version: 2.1
 
+orbs:
+  node: circleci/node@5.1.0
+  snyk: snyk/snyk@1.5.0
+
 # Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  test_var:
+  run_test:
     docker:
-      - image: cimg/node:18.11.0
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run: sudo npm install
+      - run: mkdir ~/junit
+      - run:
+          command: mocha test --reporter mocha-junit-reporter || true
+          environment:
+            MOCHA_FILE: ~/junit/test-results.xml
+          when: always
+      - store_test_results:
+          path: ~/junit
+
+
+  vulnerability_scan:
+    docker:
+      - image: cimg/node:18.15.0
     steps:
       - checkout
       - run:
-          name: "Setup Custom Env. Variables"
-          command: echo 'export MY_ENV_VAR="This works!"' >> "$BASH_ENV"
-      - run:
-          name: "Prepare for Cache"
+          name: Instance npm Dependencies
           command: |
-            echo '$VAR_AUTH0_CLIENT_ID' > VAR_AUTH0_CLIENT_ID.txt
-            cat VAR_AUTH0_CLIENT_ID.txt
+            sudo npm install -g
+      - snyk/scan
+
+  build_app:
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
       - run:
-          name: "Check Context Vars"
-          environment:
-            NEW_ENV_VAR: "Hello, world!"
+          name: Install npm Dependencies
           command: |
-            echo $NEW_ENV_VAR
-            echo 'export VAR_AUTH0_CLIENT_ID=${{context.dev.VAR_AUTH0_CLIENT_ID}}' >> "$BASH_ENV"
-            echo $VAR_AUTH0_CLIENT_ID
+            sudo npm install -g
       - run:
-          name: "Show my Custom Env. Variables"
+          name: Run NPM Build
           command: |
-            echo $MY_ENV_VAR
-            echo $VAR_AUTH0_CLIENT_ID
-      - run:
-          name: "Show Context Env. Variables"
-          command: |
-            echo $(circleci unmask $VAR_AUTH0_CLIENT_ID)
-            echo $VAR_AUTH0_DOMAIN
-  
+            npm build
+
 workflows:
   env-var-workflow:
     jobs:
-      - test_var:
-          name: test_env_var
+      - run_test:
+          name: run_test
           context: dev
+      - vulnerability_scan:
+          name: vulnerability_scan
+      - build_app:
+          name: build_app
+          context: dev
+          requires:
+            - vulnerability_scan
