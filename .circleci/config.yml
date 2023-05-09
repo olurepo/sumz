@@ -44,9 +44,26 @@ jobs:
           command: |
             sudo npm install -g
       - run:
-          name: Run NPM Build
+          name: Run npm Build
           command: |
             npm build
+            ls -la ./dist
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  # copy_to_s3:
+  #   docker:
+  #     - image: cimg/node:19.8.0
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: .
+  #     - run:
+  #         name: Check Dist Dir
+  #         command: ls -la ./dist
+
 
 workflows:
   env-var-workflow:
@@ -59,5 +76,9 @@ workflows:
       - build_app:
           name: build_app
           context: dev
-          requires:
-            - vulnerability_scan
+      # - copy_to_s3:
+      #     name: copy_to_s3
+      #     context: dev
+      #     requires:
+      #       - vulnerability_scan
+      #       - build_app
