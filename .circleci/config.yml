@@ -49,22 +49,20 @@ jobs:
       - run:
           name: Install npm Dependencies
           command: |
-            sudo npm install
             sudo pnpm install
       - run:
           name: Run npm Build
           command: |
             pnpm run build
-            ls -la ./dist
       - persist_to_workspace:
           root: .
           paths:
             - .
-      - run:
-          name: Check Version
-          command: |
-            echo $BASE_VERSION
-            echo $BASE_VERSION.<< pipeline.number >>
+      # - run:
+      #     name: Check Version
+      #     command: |
+      #       echo $BASE_VERSION
+      #       echo $BASE_VERSION.<< pipeline.number >>
 
   copy_to_s3:
     docker:
@@ -82,19 +80,17 @@ jobs:
           command: |
             mkdir $BASE_VERSION.<< pipeline.number >>
             mv ./dist/* $BASE_VERSION.<< pipeline.number >>/
-            ls -la
+            ls -la ./$BASE_VERSION.<< pipeline.number >>
       # - aws-s3/copy:
       #     from: ./dist
-      #     to: s3://sumz-bucket/$$BASE_VERSION.<< pipeline.number >>
+      #     to: s3://sumz-bucket  #/$BASE_VERSION.<< pipeline.number >>
       #     arguments:
       #       --recursive
       #     when: on_success
 
 
-
-
 workflows:
-  env-var-workflow:
+  test_build_deploy:
     jobs:
       - run_test:
           name: run_test
@@ -108,9 +104,9 @@ workflows:
           context: dev
           requires:
             - vulnerability_scan
-      # - copy_to_s3:
-      #     name: copy_to_s3
-      #     context: dev
-      #     requires:
-      #       - vulnerability_scan
-      #       - build_app
+      - copy_to_s3:
+          name: copy_to_s3
+          context: dev
+          requires:
+            - vulnerability_scan
+            - build_app
