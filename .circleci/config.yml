@@ -73,6 +73,8 @@ workflows:
           context: dev
       - vulnerability_scan:
           name: vulnerability_scan
+          requires:
+            - run_test
       - build_app:
           name: build_app
           context: dev
