@@ -33,10 +33,11 @@ jobs:
           command: |
             sudo npm install -g
       - run:
-          name: Snyk Scan
+          name: Snyk Env Var
           environment:
             SNYK_TOKEN: "657c202b-5096-4a63-8fc7-55a53ab5d728"
-          command: snyk/scan
+          command: echo $SNYK_TOKEN
+      - snyk/scan
 
   build_app:
     docker:
