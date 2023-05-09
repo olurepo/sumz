@@ -63,7 +63,7 @@ jobs:
           name: Check Version
           command: |
             echo $BASE_VERSION
-            echo $BASE_VERSION.<< parameter.pipeline_number >>
+            echo $BASE_VERSION.<< pipeline.number >>
 
   copy_to_s3:
     docker:
