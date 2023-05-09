@@ -76,17 +76,17 @@ jobs:
 
       - aws-cli/setup
       - run:
-          name: Copy Objects to s3
+          name: Prep. Objects for s3
           command: |
             mkdir $BASE_VERSION.<< pipeline.number >>
             mv ./dist/* $BASE_VERSION.<< pipeline.number >>/
             ls -la ./$BASE_VERSION.<< pipeline.number >>
-      # - aws-s3/copy:
-      #     from: ./dist
-      #     to: s3://sumz-bucket  #/$BASE_VERSION.<< pipeline.number >>
-      #     arguments:
-      #       --recursive
-      #     when: on_success
+      - aws-s3/copy:
+          from: ./dist
+          to: s3://sumz-bucket  #/$BASE_VERSION.<< pipeline.number >>
+          arguments:
+            --recursive
+          when: on_success
 
 
 workflows:
@@ -103,10 +103,10 @@ workflows:
           name: build_app
           context: dev
           requires:
+            - run_test
             - vulnerability_scan
       - copy_to_s3:
           name: copy_to_s3
           context: dev
           requires:
-            - vulnerability_scan
             - build_app
