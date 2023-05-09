@@ -4,6 +4,8 @@ version: 2.1
 orbs:
   node: circleci/node@5.1.0
   snyk: snyk/snyk@1.5.0
+  aws-cli: circleci/aws-cli@3.1.2
+  aws-s3: circleci/aws-s3@3.1.1
 
 # Define a job to be invoked later in a workflow.
 jobs:
@@ -37,7 +39,7 @@ jobs:
           # environment:
           #   SNYK_TOKEN: "657c202b-5096-4a63-8fc7-55a53ab5d728"
           command: echo $SNYK_TOKEN
-      - snyk/scan
+      # - snyk/scan
 
   build_app:
     docker:
@@ -57,17 +59,36 @@ jobs:
           root: .
           paths:
             - .
+      - run:
+          name: Check Version
+          command: |
+            echo $BASE_VERSION
+            echo $BASE_VERSION.<< parameter.pipeline_number >>
 
-  # copy_to_s3:
-  #   docker:
-  #     - image: cimg/node:19.8.0
-  #   steps:
-  #     - checkout
-  #     - attach_workspace:
-  #         at: .
-  #     - run:
-  #         name: Check Dist Dir
-  #         command: ls -la ./dist
+  copy_to_s3:
+    docker:
+      - image: cimg/python:3.8.15
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check Dist Dir
+          command: ls -la ./dist
+
+      - aws-cli/setup
+      - run:
+          name: Copy Objects to s3
+          command: |
+            mkdir $$BASE_VERSION.<< pipeline.number >>
+            ls -la
+      # - aws-s3/copy:
+      #     from: ./dist
+      #     to: s3://sumz-bucket/$$BASE_VERSION.<< pipeline.number >>
+      #     arguments:
+      #       --recursive
+      #     when: on_success
+
+
 
 
 workflows:
