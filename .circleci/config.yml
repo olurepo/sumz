@@ -78,6 +78,8 @@ workflows:
       - build_app:
           name: build_app
           context: dev
+          requires:
+            - vulnerability_scan
       # - copy_to_s3:
       #     name: copy_to_s3
       #     context: dev
