@@ -24,7 +24,6 @@ jobs:
       - store_test_results:
           path: ~/junit
 
-
   vulnerability_scan:
     docker:
       - image: cimg/node:18.15.0
@@ -36,8 +35,6 @@ jobs:
             sudo npm install -g
       - run:
           name: Snyk Env Var
-          # environment:
-          #   SNYK_TOKEN: "657c202b-5096-4a63-8fc7-55a53ab5d728"
           command: echo $SNYK_TOKEN
       # - snyk/scan
 
@@ -68,14 +65,7 @@ jobs:
       - run:
           name: Check Dist Dir
           command: ls -la ./dist
-
       - aws-cli/setup
-      # - run:
-      #     name: Prep. Objects for s3
-      #     command: |
-      #       mkdir $BASE_VERSION.<< pipeline.number >>
-      #       mv ./dist/* $BASE_VERSION.<< pipeline.number >>/
-      #       ls -la ./$BASE_VERSION.<< pipeline.number >>
       - aws-s3/copy:
           from: ./dist
           to: s3://sumz-bucket/$BASE_VERSION.<< pipeline.number >>/
