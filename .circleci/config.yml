@@ -78,7 +78,7 @@ jobs:
       #       ls -la ./$BASE_VERSION.<< pipeline.number >>
       - aws-s3/copy:
           from: ./dist
-          to: s3://sumz-bucket/  #/$BASE_VERSION.<< pipeline.number >>
+          to: s3://sumz-bucket/$BASE_VERSION.<< pipeline.number >>/
           arguments:
             --recursive
           when: on_success
