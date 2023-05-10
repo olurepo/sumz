@@ -58,11 +58,6 @@ jobs:
           root: .
           paths:
             - .
-      # - run:
-      #     name: Check Version
-      #     command: |
-      #       echo $BASE_VERSION
-      #       echo $BASE_VERSION.<< pipeline.number >>
 
   copy_to_s3:
     docker:
@@ -75,12 +70,12 @@ jobs:
           command: ls -la ./dist
 
       - aws-cli/setup
-      - run:
-          name: Prep. Objects for s3
-          command: |
-            mkdir $BASE_VERSION.<< pipeline.number >>
-            mv ./dist/* $BASE_VERSION.<< pipeline.number >>/
-            ls -la ./$BASE_VERSION.<< pipeline.number >>
+      # - run:
+      #     name: Prep. Objects for s3
+      #     command: |
+      #       mkdir $BASE_VERSION.<< pipeline.number >>
+      #       mv ./dist/* $BASE_VERSION.<< pipeline.number >>/
+      #       ls -la ./$BASE_VERSION.<< pipeline.number >>
       - aws-s3/copy:
           from: ./dist
           to: s3://sumz-bucket/  #/$BASE_VERSION.<< pipeline.number >>
