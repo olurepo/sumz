@@ -4,6 +4,8 @@ version: 2.1
 orbs:
   node: circleci/node@5.1.0
   snyk: snyk/snyk@1.5.0
+  aws-cli: circleci/aws-cli@3.1.2
+  aws-s3: circleci/aws-s3@3.1.1
 
 # Define a job to be invoked later in a workflow.
 jobs:
@@ -22,7 +24,6 @@ jobs:
       - store_test_results:
           path: ~/junit
 
-
   vulnerability_scan:
     docker:
       - image: cimg/node:18.15.0
@@ -32,9 +33,17 @@ jobs:
           name: Instance npm Dependencies
           command: |
             sudo npm install -g
-      - snyk/scan
+      - run:
+          name: Snyk Env Var
+          command: |
+            echo $SNYK_TOKEN
+      # - snyk/scan
 
   build_app:
+    parameters:
+      env:
+        type: string
+        default: "dev"
     docker:
       - image: cimg/node:18.15.0
     steps:
@@ -42,22 +51,77 @@ jobs:
       - run:
           name: Install npm Dependencies
           command: |
-            sudo npm install -g
+            sudo pnpm install
       - run:
-          name: Run NPM Build
+          name: Run npm Build
           command: |
-            npm build
+            pnpm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  copy_to_s3:
+    docker:
+      - image: cimg/python:3.8.15
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check Dist Dir
+          command: ls -la ./dist
+      - aws-cli/setup
+      - aws-s3/copy:
+          from: ./dist
+          to: s3://sumz-bucket/$BASE_VERSION.<< pipeline.number >>/
+          arguments:
+            --recursive
+          when: on_success
+
 
 workflows:
-  env-var-workflow:
+  test_build_deploy:
     jobs:
       - run_test:
-          name: run_test
-          context: dev
+          name: run_test_dev
       - vulnerability_scan:
-          name: vulnerability_scan
+          name: vulnerability_scan_dev
+          requires:
+            - run_test_dev
       - build_app:
-          name: build_app
+          name: build_app_dev
+          context: dev
+          env: dev
+          requires:
+            - run_test_dev
+            - vulnerability_scan_dev
+      - copy_to_s3:
+          name: copy_to_s3_dev
           context: dev
           requires:
-            - vulnerability_scan
+            - build_app_dev
+          filters:
+            branches:
+              only:
+              - main
+
+      - run_test:
+          name: run_test_stg
+          context: stg
+          requires:
+            - copy_to_s3_dev
+      - vulnerability_scan:
+          name: vulnerability_scan_stg
+          requires:
+            - run_test_stg
+      - build_app:
+          name: build_app_stg
+          context: stg
+          env: stg
+          requires:
+            - run_test_stg
+      # - copy_to_s3:
+      #     name: copy_to_s3_stg
+      #     context: stg
+      #     requires:
+      #       - build_app_stg
