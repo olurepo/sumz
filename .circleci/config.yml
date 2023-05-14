@@ -100,6 +100,10 @@ workflows:
           context: dev
           requires:
             - build_app_dev
+          filters:
+            branches:
+              only:
+              - main
 
       - run_test:
           name: run_test_stg
