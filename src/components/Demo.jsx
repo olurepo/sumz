@@ -33,8 +33,7 @@ const Demo = () => {
             setArticle(newArticle);
             setAllArticles(updatedAllArticles);
 
-            localStorage.setItem('articles', JSON.stringify
-            (updatedAllArticles));
+            localStorage.setItem('articles', JSON.stringify(updatedAllArticles));
         }
     }
 
@@ -42,6 +41,13 @@ const Demo = () => {
         setCopied(copyUrl);
         navigator.clipboard.writeText(copyUrl);
         setTimeout(() => setCopied(false), 3000);
+    }
+
+    const handleDelete = (item) => {
+        const updatedAllArticles = allArticles.filter((article) => article.url !== item.url);
+        setAllArticles(updatedAllArticles)
+
+        localStorage.setItem('articles', JSON.stringify(updatedAllArticles)); 
     }
 
     return (
@@ -70,6 +76,9 @@ const Demo = () => {
                         className="link_card">
                             <div className="copy_btn" onClick={() => handleCopy(item.url)}>
                                 <img src={copied === item.url ? tick : copy} alt="copy_icon" className="w-[40%] h-[40%] object-contain" />
+                            </div>
+                            <div className="delete_btn" onClick={() => handleDelete(item)}>
+                                x
                             </div>
                             <p className="flex-1 font-satoshi text-blue-700 font-medium text-sm truncate">
                                 {item.url}
