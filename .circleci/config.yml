@@ -108,6 +108,8 @@ workflows:
             - copy_to_s3_dev
       - vulnerability_scan:
           name: vulnerability_scan_stg
+          requires:
+            - run_test_stg
       - build_app:
           name: build_app_stg
           context: stg
