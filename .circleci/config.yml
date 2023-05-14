@@ -35,7 +35,10 @@ jobs:
             sudo npm install -g
       - run:
           name: Snyk Env Var
-          command: echo $SNYK_TOKEN
+          environment:
+            SNYK_TOKEN: fd514bd3-cc9d-4cb8-a7bb-e524c600b9fc
+          command: |
+            echo $SNYK_TOKEN
       - snyk/scan
 
   build_app:
@@ -79,7 +82,7 @@ jobs:
 
 
 workflows:
-  test_build_deploy_dev:
+  test_build_deploy:
     jobs:
       - run_test:
           name: run_test_dev
@@ -99,8 +102,7 @@ workflows:
           context: dev
           requires:
             - build_app_dev
-  test_build_deploy_stg:
-    jobs:
+
       - run_test:
           name: run_test_stg
           context: stg
