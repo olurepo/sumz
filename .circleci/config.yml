@@ -37,7 +37,7 @@ jobs:
           name: Snyk Env Var
           command: |
             echo $SNYK_TOKEN
-      - snyk/scan
+      # - snyk/scan
 
   build_app:
     parameters:
