@@ -35,8 +35,6 @@ jobs:
             sudo npm install -g
       - run:
           name: Snyk Env Var
-          environment:
-            SNYK_TOKEN: fd514bd3-cc9d-4cb8-a7bb-e524c600b9fc
           command: |
             echo $SNYK_TOKEN
       - snyk/scan
@@ -98,7 +96,7 @@ workflows:
             - run_test_dev
             - vulnerability_scan_dev
       - copy_to_s3:
-          name: copy_to_s3
+          name: copy_to_s3_dev
           context: dev
           requires:
             - build_app_dev
@@ -106,17 +104,16 @@ workflows:
       - run_test:
           name: run_test_stg
           context: stg
+          requires:
+            - copy_to_s3_dev
       - vulnerability_scan:
           name: vulnerability_scan_stg
-          requires:
-            - run_test_stg
       - build_app:
           name: build_app_stg
           context: stg
           env: stg
           requires:
             - run_test_stg
-            - vulnerability_scan_stg
       # - copy_to_s3:
       #     name: copy_to_s3_stg
       #     context: stg
