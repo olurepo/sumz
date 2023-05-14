@@ -47,18 +47,18 @@ const Demo = () => {
         const updatedAllArticles = allArticles.filter((article) => article.url !== item.url);
         setAllArticles(updatedAllArticles)
 
-        localStorage.setItem('articles', JSON.stringify(updatedAllArticles)); 
+        localStorage.setItem('articles', JSON.stringify(updatedAllArticles));
     }
 
     return (
         <section className="mt-16 w-full max-w-xl">
             {/* Search */}
             <div className="flex flex-col w-full gap-2">
-                <form className="relative flex justify-center items-center" 
+                <form className="relative flex justify-center items-center"
                 onSubmit={handleSubmit}
                 >
                     <img src={linkIcon} alt="link_icon" className="absolute left-0 my-2 ml-3 w-5" />
-                    
+
                     <input type="url" placeholder="Enter a URL" className="url_input peer" required
                     value={article.url} onChange={(e) => setArticle({ ... article, url: e.target.value})} />
 
@@ -77,14 +77,14 @@ const Demo = () => {
                             <div className="copy_btn" onClick={() => handleCopy(item.url)}>
                                 <img src={copied === item.url ? tick : copy} alt="copy_icon" className="w-[40%] h-[40%] object-contain" />
                             </div>
-                            <div className="delete_btn" onClick={() => handleDelete(item)}>
-                                x
-                            </div>
                             <p className="flex-1 font-satoshi text-blue-700 font-medium text-sm truncate">
                                 {item.url}
                             </p>
+                            <div className="delete_btn" onClick={() => handleDelete(item)}>
+                                x
+                            </div>
                         </div>
-                    ))} 
+                    ))}
                 </div>
 
             </div>
@@ -114,7 +114,7 @@ const Demo = () => {
                             </div>
                         </div>
                     )
-                )} 
+                )}
             </div>
         </section>
     )
