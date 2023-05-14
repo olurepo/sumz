@@ -36,9 +36,13 @@ jobs:
       - run:
           name: Snyk Env Var
           command: echo $SNYK_TOKEN
-      # - snyk/scan
+      - snyk/scan
 
   build_app:
+    parameters:
+      env:
+        type: string
+        default: "dev"
     docker:
       - image: cimg/node:18.15.0
     steps:
@@ -75,23 +79,44 @@ jobs:
 
 
 workflows:
-  test_build_deploy:
+  test_build_deploy_dev:
     jobs:
       - run_test:
-          name: run_test
-          context: dev
+          name: run_test_dev
       - vulnerability_scan:
-          name: vulnerability_scan
+          name: vulnerability_scan_dev
           requires:
-            - run_test
+            - run_test_dev
       - build_app:
-          name: build_app
+          name: build_app_dev
           context: dev
+          env: dev
           requires:
-            - run_test
-            - vulnerability_scan
+            - run_test_dev
+            - vulnerability_scan_dev
       - copy_to_s3:
           name: copy_to_s3
           context: dev
           requires:
-            - build_app
+            - build_app_dev
+  test_build_deploy_stg:
+    jobs:
+      - run_test:
+          name: run_test_stg
+          context: stg
+      - vulnerability_scan:
+          name: vulnerability_scan_stg
+          requires:
+            - run_test_stg
+      - build_app:
+          name: build_app_stg
+          context: stg
+          env: stg
+          requires:
+            - run_test_stg
+            - vulnerability_scan_stg
+      # - copy_to_s3:
+      #     name: copy_to_s3_stg
+      #     context: stg
+      #     requires:
+      #       - build_app_stg
