@@ -51,8 +51,8 @@ jobs:
     docker:
       - image: cimg/node:18.15.0
     steps:
-      # - attach_workspace:
-      #     at: .
+      - attach_workspace:
+          at: .
       - checkout
       # - run:
       #     name: Install npm Dependencies
