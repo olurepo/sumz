@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Instance npm Dependencies
           command: |
-            sudo npm install -g
+            sudo pnpm install
       - run:
           name: Snyk Env Var
           command: |
