@@ -38,6 +38,10 @@ jobs:
           command: |
             echo $SNYK_TOKEN
       # - snyk/scan
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
 
   build_app:
     parameters:
@@ -47,11 +51,13 @@ jobs:
     docker:
       - image: cimg/node:18.15.0
     steps:
+      # - attach_workspace:
+      #     at: .
       - checkout
-      - run:
-          name: Install npm Dependencies
-          command: |
-            sudo pnpm install
+      # - run:
+      #     name: Install npm Dependencies
+      #     command: |
+      #       sudo pnpm install
       - run:
           name: Run npm Build
           command: |
