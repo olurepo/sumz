@@ -18,18 +18,19 @@ jobs:
           command: |
             npm run lint
             LINT_EXIT_CODE=$?
-            # if [ $lint_exit_code -ne 0 ]; then
-            #   exit $lint_exit_code
-            #   echo "Linting failed with exit code: $lint_exit_code"
-            # fi
+            if [ $lint_exit_code -ne 0 ]; then
+              continue
+              echo "Linting failed with exit code: $LINT_EXIT_CODE"
+            fi
       - run:
           command: |
             set -e
-            mkdir ~/tmp/test_reports
+            mkdir /tmp/test_reports
             cat $LINT_EXIT_CODE > ~/tmp/test_reports/lint_error.txt
           when: always
       - store_test_results:
-          path: ~/tmp/test_reports
+          path: /tmp/test_reports
+          destination: /
 
   vulnerability_scan:
     docker:
