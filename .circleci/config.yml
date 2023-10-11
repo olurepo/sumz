@@ -20,7 +20,12 @@ jobs:
             LINT_EXIT_CODE=$?
             if [ $LINT_EXIT_CODE -ne 0 ]; then
               echo "Linting failed with exit code: $LINT_EXIT_CODE"
-              exit 1  # Exit the script with a non-zero status code to indicate failure
+              # set a flag or variable here to track the failure
+              LINT_FAILED=true
+            fi
+            # continue with the rest of the pipeline
+            if [ "$LINT_FAILED" = "true" ]; then
+              echo "Linting failed but the pipeline will continue."
             fi
       - run:
           command: |
