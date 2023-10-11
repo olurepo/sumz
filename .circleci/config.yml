@@ -7,7 +7,6 @@ orbs:
   aws-cli: circleci/aws-cli@3.1.2
   aws-s3: circleci/aws-s3@3.1.1
 
-# Define a job to be invoked later in a workflow.
 jobs:
   run_test:
     docker:
@@ -15,14 +14,22 @@ jobs:
     steps:
       - checkout
       - run: sudo npm install
-      - run: mkdir ~/junit
       - run:
-          command: mocha test --reporter mocha-junit-reporter || true
-          environment:
-            MOCHA_FILE: ~/junit/test-results.xml
-          when: always
-      - store_test_results:
-          path: ~/junit
+          command: |
+            npm run lint
+            lint_exit_code=$?
+            if [ $lint_exit_code -ne 0 ]; then
+              exit $lint_exit_code
+              echo "Linting failed with exit code: $lint_exit_code"
+            fi
+      # - run: mkdir ~/junit
+      # - run:
+      #     command: mocha test --reporter mocha-junit-reporter || true
+      #     environment:
+      #       MOCHA_FILE: ~/junit/test-results.xml
+      #     when: always
+      # - store_test_results:
+      #     path: ~/junit
 
   vulnerability_scan:
     docker:
@@ -51,8 +58,13 @@ jobs:
     docker:
       - image: cimg/node:18.15.0
     steps:
+<<<<<<< HEAD
+      # - attach_workspace:
+      #     at: .
+=======
       - attach_workspace:
           at: .
+>>>>>>> main
       - checkout
       # - run:
       #     name: Install npm Dependencies
@@ -86,10 +98,14 @@ jobs:
 
 
 workflows:
-  test_build_deploy:
+  test_build:
     jobs:
       - run_test:
           name: run_test_dev
+          filters:
+            branches:
+              ignore:
+              - main
       - vulnerability_scan:
           name: vulnerability_scan_dev
           requires:
@@ -106,28 +122,30 @@ workflows:
           context: dev
           requires:
             - build_app_dev
+
+  test_build_deploy:
+    jobs:
+      - run_test:
+          name: run_test_prod
+          context: prod
           filters:
             branches:
               only:
               - main
-
-      - run_test:
-          name: run_test_stg
-          context: stg
-          requires:
-            - copy_to_s3_dev
+          # requires:
+          #   - copy_to_s3_dev
       - vulnerability_scan:
-          name: vulnerability_scan_stg
+          name: vulnerability_scan_prod
           requires:
-            - run_test_stg
+            - run_test_prod
       - build_app:
-          name: build_app_stg
-          context: stg
-          env: stg
+          name: build_app_prod
+          context: prod
+          env: prod
           requires:
-            - run_test_stg
-      # - copy_to_s3:
-      #     name: copy_to_s3_stg
-      #     context: stg
-      #     requires:
-      #       - build_app_stg
+            - run_test_prod
+      - copy_to_s3:
+          name: copy_to_s3_prod
+          context: prod
+          requires:
+            - build_app_prod
