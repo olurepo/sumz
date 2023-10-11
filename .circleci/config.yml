@@ -58,18 +58,13 @@ jobs:
     docker:
       - image: cimg/node:18.15.0
     steps:
-<<<<<<< HEAD
-      # - attach_workspace:
-      #     at: .
-=======
       - attach_workspace:
           at: .
->>>>>>> main
       - checkout
-      # - run:
-      #     name: Install npm Dependencies
-      #     command: |
-      #       sudo pnpm install
+      - run:
+          name: Install npm Dependencies
+          command: |
+            sudo pnpm install
       - run:
           name: Run npm Build
           command: |
@@ -132,8 +127,6 @@ workflows:
             branches:
               only:
               - main
-          # requires:
-          #   - copy_to_s3_dev
       - vulnerability_scan:
           name: vulnerability_scan_prod
           requires:
