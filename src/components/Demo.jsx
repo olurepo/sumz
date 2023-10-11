@@ -5,8 +5,8 @@ import { useLazyGetSummaryQuery } from "../services/article";
 
 const Demo = () => {
     const [article, setArticle] = useState({
-        url: '',
-        summary: '',
+        url: "",
+        summary: "",
     });
 
     const [allArticles, setAllArticles] = useState([]);
