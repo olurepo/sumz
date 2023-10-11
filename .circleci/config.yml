@@ -8,7 +8,7 @@ orbs:
   aws-s3: circleci/aws-s3@3.1.1
 
 jobs:
-  run_test:
+  run_tests:
     docker:
       - image: cimg/node:18.15.0
     steps:
@@ -17,22 +17,19 @@ jobs:
       - run:
           command: |
             npm run lint
-            lint_exit_code=$?
+            LINT_EXIT_CODE=$?
             # if [ $lint_exit_code -ne 0 ]; then
             #   exit $lint_exit_code
             #   echo "Linting failed with exit code: $lint_exit_code"
             # fi
-            if [ $lint_exit_code -ne 0 ]; then
-              echo "Linting failed: $lint_exit_code"
-            fi
-      # - run: mkdir ~/junit
-      # - run:
-      #     command: mocha test --reporter mocha-junit-reporter || true
-      #     environment:
-      #       MOCHA_FILE: ~/junit/test-results.xml
-      #     when: always
-      # - store_test_results:
-      #     path: ~/junit
+      - run:
+          command: |
+            set -e
+            mkdir ~/tmp/test_reports
+            cat $LINT_EXIT_CODE > ~/tmp/test_reports/lint_error.txt
+          when: always
+      - store_test_results:
+          path: ~/tmp/test_reports
 
   vulnerability_scan:
     docker:
@@ -98,7 +95,7 @@ jobs:
 workflows:
   test_build:
     jobs:
-      - run_test:
+      - run_tests:
           name: run_test_dev
           filters:
             branches:
@@ -123,7 +120,7 @@ workflows:
 
   test_build_deploy:
     jobs:
-      - run_test:
+      - run_tests:
           name: run_test_prod
           context: prod
           filters:

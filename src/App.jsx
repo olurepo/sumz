@@ -1,4 +1,4 @@
-// import React, { Component } from 'react';
+import React, { Component } from 'react';
 
 import Demo from './components/Demo';
 import Hero from './components/Hero';
