@@ -24,7 +24,7 @@ workflows:
           base-revision: main
           config-path: .circleci/continue_config.yml
           mapping: |
-            infra/.* infra-build
+            infra/.* infra-build << pipeline.parameters.infra-build >>
             (?!infra)/.* app-build
           requires:
             - block_workflow_temporarily
