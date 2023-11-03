@@ -103,10 +103,10 @@ workflows:
     jobs:
       - run_tests:
           name: run_test_dev
-          filters:
-            branches:
-              ignore:
-              - main
+          # filters:
+          #   branches:
+          #     ignore:
+          #     - main
       - vulnerability_scan:
           name: vulnerability_scan_dev
           requires:
