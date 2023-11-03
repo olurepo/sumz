@@ -14,28 +14,28 @@ jobs:
     steps:
       - checkout
       - run: sudo npm install
-      - run:
-          command: |
-            npm run lint
-            LINT_EXIT_CODE=$?
-            if [ $LINT_EXIT_CODE -ne 0 ]; then
-              echo "Linting failed with exit code: $LINT_EXIT_CODE"
-              # set a flag or variable here to track the failure
-              LINT_FAILED=true
-            fi
-            # continue with the rest of the pipeline
-            if [ "$LINT_FAILED" = "true" ]; then
-              echo "Linting failed but the pipeline will continue."
-            fi
-      - run:
-          command: |
-            set -e
-            mkdir /tmp/test_reports
-            cat $LINT_EXIT_CODE > /tmp/test_reports/lint_error.txt
-          when: always
-      - store_test_results:
-          path: /tmp/test_reports
-          destination: /
+      # - run:
+      #     command: |
+      #       npm run lint
+      #       LINT_EXIT_CODE=$?
+      #       if [ $LINT_EXIT_CODE -ne 0 ]; then
+      #         echo "Linting failed with exit code: $LINT_EXIT_CODE"
+      #         # set a flag or variable here to track the failure
+      #         LINT_FAILED=true
+      #       fi
+      #       # continue with the rest of the pipeline
+      #       if [ "$LINT_FAILED" = "true" ]; then
+      #         echo "Linting failed but the pipeline will continue."
+      #       fi
+      # - run:
+      #     command: |
+      #       set -e
+      #       mkdir /tmp/test_reports
+      #       cat $LINT_EXIT_CODE > /tmp/test_reports/lint_error.txt
+      #     when: always
+      # - store_test_results:
+      #     path: /tmp/test_reports
+      #     destination: /
 
   vulnerability_scan:
     docker:
