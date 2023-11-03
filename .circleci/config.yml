@@ -6,6 +6,14 @@ orbs:
   path-filtering: circleci/path-filtering@1.0.0
   queue: eddiewebb/queue@2.2.1
 
+parameters:
+  infra-build:
+    type: boolean
+    default: false
+  app-build:
+    type: boolean
+    default: false
+
 workflows:
   base-config:
     jobs:
@@ -18,4 +26,6 @@ workflows:
           mapping: |
             infra/.* infra-build
             (?!infra)/.* app-build
+          requires:
+            - block_workflow_temporarily
 

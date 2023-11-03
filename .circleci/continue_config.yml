@@ -107,32 +107,6 @@ jobs:
 
 
 workflows:
-  test_build:
-    when: << pipeline.parameters.app-build >>
-    jobs:
-      - run_tests:
-          name: run_test_dev
-          filters:
-            branches:
-              ignore:
-              - main
-      - vulnerability_scan:
-          name: vulnerability_scan_dev
-          requires:
-            - run_test_dev
-      - build_app:
-          name: build_app_dev
-          context: dev
-          env: dev
-          requires:
-            - run_test_dev
-            - vulnerability_scan_dev
-      - copy_to_s3:
-          name: copy_to_s3_dev
-          context: dev
-          requires:
-            - build_app_dev
-
   infra_build_deploy:
     # when: << pipeline.parameters.infra-build >>
     jobs:
@@ -158,3 +132,29 @@ workflows:
           context: prod
           requires:
             - build_app_prod
+
+  test_build:
+    when: << pipeline.parameters.app-build >>
+    jobs:
+      - run_tests:
+          name: run_test_dev
+          filters:
+            branches:
+              ignore:
+              - main
+      - vulnerability_scan:
+          name: vulnerability_scan_dev
+          requires:
+            - run_test_dev
+      - build_app:
+          name: build_app_dev
+          context: dev
+          env: dev
+          requires:
+            - run_test_dev
+            - vulnerability_scan_dev
+      - copy_to_s3:
+          name: copy_to_s3_dev
+          context: dev
+          requires:
+            - build_app_dev
