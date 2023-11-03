@@ -7,7 +7,7 @@ orbs:
   queue: eddiewebb/queue@2.2.1
 
 workflows:
-  generate-config:
+  base-config:
     jobs:
       - queue/block_workflow:
           name: block_workflow_temporarily
