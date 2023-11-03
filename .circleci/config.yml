@@ -16,6 +16,6 @@ workflows:
           base-revision: main
           config-path: .circleci/continue_config.yml
           mapping: |
-            infra/.* infra-build true
-            (?!infra)/.* app-build true
+            infra/.* infra-build
+            (?!infra)/.* app-build
 
