@@ -133,8 +133,8 @@ workflows:
           requires:
             - build_app_dev
 
-  test_build_deploy:
-    when: << pipeline.parameters.infra-build >>
+  infra_build_deploy:
+    # when: << pipeline.parameters.infra-build >>
     jobs:
       - run_tests:
           name: run_test_prod
