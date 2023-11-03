@@ -14,17 +14,29 @@ parameters:
     type: boolean
     default: false
 
+jobs:
+  check_params:
+    resource_class: medium
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run:
+          name: Check parameters
+          command: |
+            echo "param is: << pipeline.parameters.infra-build >>"
+
 workflows:
   base-config:
     jobs:
+      - check_params:
+          name: check_params
       - queue/block_workflow:
           name: block_workflow_temporarily
           time: '10'
       - path-filtering/filter:
           base-revision: main
           config-path: .circleci/continue_config.yml
-          command: |
-            echo "param is: << pipeline.parameters.infra-build >>"
           mapping: |
             infra/.* infra-build << pipeline.parameters.infra-build >>
             (?!infra)/.* app-build << pipeline.parameters.infra-build >>
