@@ -28,6 +28,8 @@ jobs:
 
 workflows:
   base-config:
+    unless:
+      or: [<< pipeline.parameters.infra-build >>, << pipeline.parameters.infra-build >>]
     jobs:
       - check_params:
           name: check_params
@@ -38,8 +40,8 @@ workflows:
           base-revision: main
           config-path: .circleci/continue_config.yml
           mapping: |
-            infra/.* infra-build << pipeline.parameters.infra-build >>
-            (?!infra)/.* app-build << pipeline.parameters.infra-build >>
+            infra/.* infra-build true
+            (?!infra)/.* app-build true
           requires:
             - block_workflow_temporarily
 
