@@ -5,6 +5,7 @@ setup: true
 orbs:
   path-filtering: circleci/path-filtering@1.0.0
   queue: eddiewebb/queue@2.2.1
+  continuation: circleci/continuation@0.2.0
 
 parameters:
   infra-build:
@@ -45,3 +46,14 @@ workflows:
           requires:
             - block_workflow_temporarily
 
+  second-config:
+    when:
+      or: [<< pipeline.parameters.infra-build >>, << pipeline.parameters.infra-build >>]
+    jobs:
+      - continuation/continue:
+          config-path: .circleci/continue_config.yml
+          parameters: /tmp/pipeline-parameters.json
+          pre-steps:
+            - run:
+                command: |
+                  echo '{ "run-infra-workflow": << pipeline.parameters.infra-build >>, "run-app-workflow": << pipeline.parameters.app-build >> }' >> /tmp/pipeline-parameters.json
