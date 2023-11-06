@@ -121,9 +121,9 @@ jobs:
       - image: cimg/base:stable
     steps:
       - swissknife/wait_for_workflow:
-          max-wait-time: '180'
-          workflow-name: infra_build_deploy
-    working_directory: /home/circleci/project
+    #       max-wait-time: '180'
+    #       workflow-name: infra_build_deploy
+    # working_directory: /home/circleci/project
       # - run:
       #     name: trigger_another_workflow
       #     command: |
