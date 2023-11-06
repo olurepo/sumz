@@ -52,7 +52,7 @@ workflows:
 
       - path-filtering/filter:
           base-revision: main
-          name: check_ap_updates
+          name: check_app_updates
           config-path: .circleci/continue_config.yml
           mapping: |
             (?!infra)/.* app-build true

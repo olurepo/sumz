@@ -112,20 +112,20 @@ jobs:
             --recursive
           when: on_success
 
-  hold_me:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: hold_me
-          command: |
-            curl --request POST \
-              --url https://circleci.com/api/v2/project/github/olurepo/sumz/pipeline \
-              --header 'Circle-Token: ${CIRCLE_TOKEN}' \
-              --header 'content-type: application/json' \
-              --data '{"branch":"'${CIRCLE_BRANCH}'","parameters":{"infra-build": true, "app-build": true}}'
-              echo "Circle-Token: ${CIRCLE_TOKEN}"
-              echo "${CIRCLE_BRANCH}"
+  # hold_me:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - run:
+  #         name: hold_me
+  #         command: |
+  #           curl --request POST \
+  #             --url https://circleci.com/api/v2/project/github/olurepo/sumz/pipeline \
+  #             --header 'Circle-Token: ${CIRCLE_TOKEN}' \
+  #             --header 'content-type: application/json' \
+  #             --data '{"branch":"'${CIRCLE_BRANCH}'","parameters":{"infra-build": true, "app-build": true}}'
+  #             echo "Circle-Token: ${CIRCLE_TOKEN}"
+  #             echo "${CIRCLE_BRANCH}"
 
 
 workflows:
@@ -156,18 +156,18 @@ workflows:
           context: dev
           requires:
             - build_app_prod
-      - hold_me:
-          name: hold_me
-          context:
-            - main
-          requires:
-            - copy_to_s3_prod
+      # - hold_me:
+      #     name: hold_me
+      #     context:
+      #       - main
+      #     requires:
+      #       - copy_to_s3_prod
 
   test_build:
     # when:
     #   or: [<< pipeline.parameters.run-app-workflow >>, << pipeline.parameters.app-build >>]
-    when:
-      or: [<< pipeline.parameters.app-build >>, << pipeline.parameters.infra-build >>]
+    # when:
+    #   or: [<< pipeline.parameters.app-build >>, << pipeline.parameters.infra-build >>]
     jobs:
       - run_tests:
           name: run_test_dev
