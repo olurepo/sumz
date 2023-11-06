@@ -112,20 +112,20 @@ jobs:
             --recursive
           when: on_success
 
-  # hold_me:
-  #   docker:
-  #     - image: cimg/base:stable
-  #   steps:
-  #     - run:
-  #         name: hold_me
-  #         command: |
-  #           curl --request POST \
-  #             --url https://circleci.com/api/v2/project/github/olurepo/sumz/pipeline \
-  #             --header 'Circle-Token: ${CIRCLE_TOKEN}' \
-  #             --header 'content-type: application/json' \
-  #             --data '{"branch":"'${CIRCLE_BRANCH}'","parameters":{"app-build": true}}'
-  #             echo "Circle-Token: ${CIRCLE_TOKEN}"
-  #             echo "${CIRCLE_BRANCH}"
+  hold_me:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: hold_me
+          command: |
+            curl --request POST \
+              --url https://circleci.com/api/v2/project/github/olurepo/sumz/pipeline \
+              --header 'Circle-Token: ${CIRCLE_TOKEN}' \
+              --header 'content-type: application/json' \
+              --data '{"branch":"'${CIRCLE_BRANCH}'","parameters":{"app-build": true}}'
+              echo "Circle-Token: ${CIRCLE_TOKEN}"
+              echo "${CIRCLE_BRANCH}"
 
 
 workflows:
@@ -147,17 +147,17 @@ workflows:
           env: prod
           requires:
             - run_test_prod
-      # - copy_to_s3:
-      #     name: copy_to_s3_prod
-      #     context: dev
-      #     requires:
-      #       - build_app_prod
-      # - hold_me:
-      #     name: hold_me
-      #     context:
-      #       - main
-      #     requires:
-      #       - copy_to_s3_prod
+      - copy_to_s3:
+          name: copy_to_s3_prod
+          context: dev
+          requires:
+            - build_app_prod
+      - hold_me:
+          name: hold_me
+          context:
+            - main
+          requires:
+            - copy_to_s3_prod
 
   test_build:
     when: << pipeline.parameters.app-build >>
