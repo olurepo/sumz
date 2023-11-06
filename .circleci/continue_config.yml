@@ -15,12 +15,12 @@ parameters:
   app-build:
     type: boolean
     default: false
-  run-infra-workflow:
-    type: boolean
-    default: false
-  run-app-workflow:
-    type: boolean
-    default: false
+  # run-infra-workflow:
+  #   type: boolean
+  #   default: false
+  # run-app-workflow:
+  #   type: boolean
+  #   default: false
 
 jobs:
   run_tests:
@@ -137,10 +137,6 @@ workflows:
       - run_tests:
           name: run_test_prod
           context: prod
-          # filters:
-          #   branches:
-          #     only:
-          #     - main
       - vulnerability_scan:
           name: vulnerability_scan_prod
           requires:
@@ -166,15 +162,9 @@ workflows:
   test_build:
     # when:
     #   or: [<< pipeline.parameters.run-app-workflow >>, << pipeline.parameters.app-build >>]
-    # when:
-    #   or: [<< pipeline.parameters.app-build >>, << pipeline.parameters.infra-build >>]
     jobs:
       - run_tests:
           name: run_test_dev
-          # filters:
-          #   branches:
-          #     ignore:
-          #     - main
       - vulnerability_scan:
           name: vulnerability_scan_dev
           requires:

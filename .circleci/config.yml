@@ -7,69 +7,21 @@ orbs:
   queue: eddiewebb/queue@2.2.1
   continuation: circleci/continuation@1.0.0
 
-# parameters:
-#   infra-build:
-#     type: boolean
-#     default: false
-#   app-build:
-#     type: boolean
-#     default: false
-
-jobs:
-  check_params:
-    resource_class: medium
-    docker:
-      - image: cimg/node:18.15.0
-    steps:
-      - checkout
-      - run:
-          name: Check parameters
-          command: |
-            echo "Hello"
-# echo "param is: << pipeline.parameters.infra-build >>"
 
 workflows:
   base-config:
-    # unless:
-    #   or: [<< pipeline.parameters.infra-build >>, << pipeline.parameters.infra-build >>]
     jobs:
-      - check_params:
-          name: check_params
-
-      - path-filtering/filter:
-          base-revision: main
-          name: check_infra
-          config-path: .circleci/continue_config.yml
-          mapping: |
-            infra/.* infra-build true
-          requires:
-            - check_params
 
       - queue/block_workflow:
           name: block_workflow_temporarily
           time: '25'
-          requires:
-            - check_infra
 
       - path-filtering/filter:
           base-revision: main
           name: check_app
           config-path: .circleci/continue_config.yml
           mapping: |
+            infra/.* infra-build true
             (?!infra)/.* app-build true
           requires:
             - block_workflow_temporarily
-
-  # second-config:
-  #   when:
-  #     or: [<< pipeline.parameters.infra-build >>, << pipeline.parameters.infra-build >>]
-  #   jobs:
-  #     - continuation/continue:
-  #         configuration_path: .circleci/continue_config.yml
-  #         parameters: /tmp/pipeline-parameters.json
-  #         pre-steps:
-  #           - run:
-  #               command: |
-  #                 echo '{ "run-infra-workflow": << pipeline.parameters.infra-build >>, "run-app-workflow": << pipeline.parameters.app-build >> }' >> /tmp/pipeline-parameters.json
-
-# echo '{ "run-infra-workflow": << pipeline.parameters.infra-build >>, "run-app-workflow": << pipeline.parameters.app-build >> }' >> /tmp/pipeline-parameters.json
