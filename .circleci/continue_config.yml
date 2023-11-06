@@ -168,8 +168,6 @@ workflows:
       - queue/block_workflow:
           name: block_workflow_temporarily
           time: '25'
-          requires:
-            -
       - run_tests:
           name: run_test_dev
           requires:
