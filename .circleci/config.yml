@@ -34,18 +34,25 @@ workflows:
     jobs:
       - check_params:
           name: check_params
-      - queue/block_workflow:
-          name: block_workflow_temporarily
-          time: '10'
+
       - path-filtering/filter:
           base-revision: main
+          name: check_infra_updates
           config-path: .circleci/continue_config.yml
           mapping: |
             infra/.* infra-build true
           requires:
-            - block_workflow_temporarily
+            - check_params
+
+      - queue/block_workflow:
+          name: block_workflow_temporarily
+          time: '25'
+          requires:
+            - check_infra_updates
+
       - path-filtering/filter:
           base-revision: main
+          name: check_ap_updates
           config-path: .circleci/continue_config.yml
           mapping: |
             (?!infra)/.* app-build true
