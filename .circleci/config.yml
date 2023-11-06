@@ -14,10 +14,7 @@ parameters:
     default: false
     type: boolean
   run_app_workflow:
-    default: false
-    type: boolean
-  run_operations_workflow:
-    default: false
+    default: true
     type: boolean
   run_trigger_workflow:
     default: true
