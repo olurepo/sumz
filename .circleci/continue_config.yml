@@ -163,11 +163,13 @@ workflows:
             - copy_to_s3_prod
 
   test_build:
-    # when: << pipeline.parameters.run-app-build >>
+    when: << pipeline.parameters.run-app-build >>
     jobs:
       - queue/block_workflow:
           name: block_workflow_temporarily
           time: '25'
+          requires:
+            -
       - run_tests:
           name: run_test_dev
           requires:
