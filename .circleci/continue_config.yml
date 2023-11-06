@@ -158,6 +158,8 @@ workflows:
           name: hold_me
           context:
             - main
+          requires:
+            - copy_to_s3
 
   test_build:
     # when:
