@@ -1,27 +1,208 @@
 version: '2.1'
 
-setup: true
-
 orbs:
-  path-filtering: circleci/path-filtering@1.0.0
+  # path-filtering: circleci/path-filtering@1.0.0
   queue: eddiewebb/queue@2.2.1
-  continuation: circleci/continuation@1.0.0
+  swissknife: roopakv/swissknife@0.69.0
+  node: circleci/node@5.1.0
+  snyk: snyk/snyk@1.5.0
+  aws-cli: circleci/aws-cli@3.1.2
+  aws-s3: circleci/aws-s3@3.1.1
 
+parameters:
+  run_infra_workflow:
+    default: false
+    type: boolean
+  run_app_workflow:
+    default: false
+    type: boolean
+  run_operations_workflow:
+    default: false
+    type: boolean
+  run_trigger_workflow:
+    default: true
+    type: boolean
+  swissknife_sha:
+    default: ""
+    type: string
+
+jobs:
+
+  run_tests:
+    docker:
+      - image: cimg/node:18.15.0
+    working_directory: /home/circleci/project/
+    parameters:
+      dir:
+        type: string
+        description: The directory of app/infra.
+    steps:
+      - checkout
+      - run: sudo npm install
+      - swissknife/sk-checkout:
+          swissknife_sha: << pipeline.parameters.swissknife_sha >>
+      # - run:
+      #     command: |
+      #       npm run lint
+      #       LINT_EXIT_CODE=$?
+      #       if [ $LINT_EXIT_CODE -ne 0 ]; then
+      #         echo "Linting failed with exit code: $LINT_EXIT_CODE"
+      #         # set a flag or variable here to track the failure
+      #         LINT_FAILED=true
+      #       fi
+      #       # continue with the rest of the pipeline
+      #       if [ "$LINT_FAILED" = "true" ]; then
+      #         echo "Linting failed but the pipeline will continue."
+      #       fi
+      # - run:
+      #     command: |
+      #       set -e
+      #       mkdir /tmp/test_reports
+      #       cat $LINT_EXIT_CODE > /tmp/test_reports/lint_error.txt
+      #     when: always
+      # - store_test_results:
+      #     path: /tmp/test_reports
+      #     destination: /
+
+  vulnerability_scan:
+    docker:
+      - image: cimg/node:18.15.0
+    # working_directory: /home/circleci/project/
+    # parameters:
+    #   dir:
+    #     type: string
+    #     description: The directory of app/infra.
+    steps:
+      - checkout
+      - swissknife/sk-checkout:
+          swissknife_sha: << pipeline.parameters.swissknife_sha >>
+      - run:
+          name: Instance npm Dependencies
+          command: |
+            sudo pnpm install
+      - run:
+          name: Snyk Env Var
+          command: |
+            echo $SNYK_TOKEN
+      # - snyk/scan
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  build_app:
+    parameters:
+      env:
+        type: string
+        default: "dev"
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - attach_workspace:
+          at: .
+      - checkout
+      - run:
+          name: Install npm Dependencies
+          command: |
+            sudo pnpm install
+      - run:
+          name: Run npm Build
+          command: |
+            pnpm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  copy_to_s3:
+    docker:
+      - image: cimg/python:3.8.15
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check Dist Dir
+          command: ls -la ./dist
+      - aws-cli/setup
+      - aws-s3/copy:
+          from: ./dist
+          to: s3://sumz-bucket/$BASE_VERSION.<< pipeline.number >>/
+          arguments:
+            --recursive
+          when: on_success
+
+  trigger-needed-workflows:
+    docker:
+      - image: circleci/node:12
+    working_directory: /home/circleci/project/
+    steps:
+      - checkout
+      - swissknife/trigger-workflows-for-all-modified:
+          base-branch: main
+          run-mode-for-base-branch: run_for_last_commit
+          use-divergence-point: true
+          code-param-name-map: '
+            [
+              {"regex": "^(infra).*", "param_name": "run_infra_workflow"},
+              {"regex": "^(?!infra).*", "param_name": "run_app_workflow"},
+            ]'
+          additional-param-map: '{"run_trigger_workflow": false}'
+          use-swissknife-sha: true
 
 workflows:
-  base-config:
+  infra-tests:
+    when: << pipeline.parameters.run_infra_workflow >>
     jobs:
-
       - queue/block_workflow:
           name: block_workflow_temporarily
           time: '25'
-
-      - path-filtering/filter:
-          base-revision: main
-          name: check_changes
-          config-path: .circleci/continue_config.yml
-          mapping: |
-            infra/.* infra-build true
-            (?!infra)/.* app-build true
+      - run_tests:
+          dir: infra
+          name: Infra tests
           requires:
             - block_workflow_temporarily
+      - vulnerability_scan:
+          name: vulnerability scan
+          requires:
+            - Infra tests
+      - build_app:
+          name: build_app
+          context: prod
+          env: prod
+          requires:
+            - vulnerability scan
+      - copy_to_s3:
+          name: copy_to_s3_prod
+          context: dev
+          requires:
+            - build_app
+
+  app-tests:
+    when: << pipeline.parameters.run_app_workflow >>
+    jobs:
+      - run_tests:
+          dir: infra
+          name: Infra tests
+      - vulnerability_scan:
+          name: vulnerability scan
+          requires:
+            - Infra tests
+      - build_app:
+          name: build_app
+          context: prod
+          env: prod
+          requires:
+            - vulnerability scan
+      - copy_to_s3:
+          name: copy_to_s3_prod
+          context: dev
+          requires:
+            - build_app
+
+  trigger-needed-workflows:
+    when: << pipeline.parameters.run_trigger_workflow >>
+    jobs:
+      - trigger-needed-workflows:
+          context:
+            - main
+
