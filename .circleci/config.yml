@@ -135,7 +135,7 @@ jobs:
             # # Exclude .git and .circleci directories
             # find . -type f -not -path "./infra/*" -not -path "./.git/*" -not -path "./.circleci/*" -exec mv {} app-code-dir/ \;
 
-            sudo mv (?!infra/).* app-code-dir/
+            sudo mv ?!infra/ app-code-dir/
 
       - swissknife/trigger-workflows-for-all-modified:
           base-branch: main
