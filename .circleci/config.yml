@@ -29,8 +29,8 @@ jobs:
 
 workflows:
   base-config:
-    unless:
-      or: [<< pipeline.parameters.infra-build >>, << pipeline.parameters.infra-build >>]
+    # unless:
+    #   or: [<< pipeline.parameters.infra-build >>, << pipeline.parameters.infra-build >>]
     jobs:
       - check_params:
           name: check_params
@@ -46,16 +46,16 @@ workflows:
           requires:
             - block_workflow_temporarily
 
-  second-config:
-    when:
-      or: [<< pipeline.parameters.infra-build >>, << pipeline.parameters.infra-build >>]
-    jobs:
-      - continuation/continue:
-          configuration_path: .circleci/continue_config.yml
-          parameters: /tmp/pipeline-parameters.json
-          pre-steps:
-            - run:
-                command: |
-                  echo '{ "run-infra-workflow": << pipeline.parameters.infra-build >>, "run-app-workflow": << pipeline.parameters.app-build >> }' >> /tmp/pipeline-parameters.json
+  # second-config:
+  #   when:
+  #     or: [<< pipeline.parameters.infra-build >>, << pipeline.parameters.infra-build >>]
+  #   jobs:
+  #     - continuation/continue:
+  #         configuration_path: .circleci/continue_config.yml
+  #         parameters: /tmp/pipeline-parameters.json
+  #         pre-steps:
+  #           - run:
+  #               command: |
+  #                 echo '{ "run-infra-workflow": << pipeline.parameters.infra-build >>, "run-app-workflow": << pipeline.parameters.app-build >> }' >> /tmp/pipeline-parameters.json
 
 # echo '{ "run-infra-workflow": << pipeline.parameters.infra-build >>, "run-app-workflow": << pipeline.parameters.app-build >> }' >> /tmp/pipeline-parameters.json
