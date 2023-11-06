@@ -159,7 +159,7 @@ workflows:
           context:
             - main
           requires:
-            - copy_to_s3
+            - copy_to_s3_prod
 
   test_build:
     # when:
