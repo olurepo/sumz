@@ -170,8 +170,13 @@ workflows:
   test_build:
     # when: << pipeline.parameters.run-app-build >>
     jobs:
-      - trigger_another_workflow:
-          name: hold_me
+      # - trigger_another_workflow:
+      #     name: hold_me
+      #     context:
+      #       - main
+      - swissknife/wait_for_workflow:
+          max-wait-time: '180'
+          workflow-name: ^(infra_build_deploy)$
           context:
             - main
       - run_tests:
