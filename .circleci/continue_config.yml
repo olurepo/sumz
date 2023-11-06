@@ -133,7 +133,7 @@ jobs:
 
 workflows:
   infra_build_deploy:
-    when: << pipeline.parameters.run-app-build >>
+    # when: << pipeline.parameters.run-app-build >>
     # when:
     #   or: [<< pipeline.parameters.run-infra-workflow >>, << pipeline.parameters.infra-build >>]
     jobs:
@@ -170,6 +170,8 @@ workflows:
           time: '25'
       - run_tests:
           name: run_test_dev
+          requires:
+            - block_workflow_temporarily
       - vulnerability_scan:
           name: vulnerability_scan_dev
           requires:
