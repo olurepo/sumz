@@ -144,7 +144,7 @@ jobs:
           code-param-name-map: '
             [
               {"regex": "^(infra).*", "param_name": "run_infra_workflow"},
-              {"regex": "^(?!infra).*", "param_name": "run_app_workflow"},
+
             ]'
           additional-param-map: '{"run_trigger_workflow": false}'
           use-swissknife-sha: true
