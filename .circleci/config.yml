@@ -26,7 +26,7 @@ jobs:
           name: Check parameters
           command: |
             echo "Hello"
-            # echo "param is: << pipeline.parameters.infra-build >>"
+# echo "param is: << pipeline.parameters.infra-build >>"
 
 workflows:
   base-config:
