@@ -138,7 +138,9 @@ workflows:
     jobs:
       - run_tests:
           name: run_test_prod
-          context: prod
+          context:
+            - main
+            - prod
       - vulnerability_scan:
           name: vulnerability_scan_prod
           requires:
@@ -166,6 +168,8 @@ workflows:
     jobs:
       - run_tests:
           name: run_test_dev
+          context:
+            - main
 
       - vulnerability_scan:
           name: vulnerability_scan_dev
