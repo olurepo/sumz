@@ -10,7 +10,7 @@ orbs:
 parameters:
   infra-build:
     type: boolean
-    default: false
+    default: true
   app-build:
     type: boolean
     default: false
