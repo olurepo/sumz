@@ -64,11 +64,6 @@ jobs:
   vulnerability_scan:
     docker:
       - image: cimg/node:18.15.0
-    # working_directory: /home/circleci/project/
-    # parameters:
-    #   dir:
-    #     type: string
-    #     description: The directory of app/infra.
     steps:
       - checkout
       - run:
@@ -90,12 +85,8 @@ jobs:
       env:
         type: string
         default: "dev"
-      # dir:
-      #   type: string
-      #   description: The directory of app/infra.
     docker:
       - image: cimg/node:18.15.0
-    # working_directory: /home/circleci/project/
     steps:
       - attach_workspace:
           at: .
@@ -143,7 +134,7 @@ jobs:
           code-param-name-map:
             '[
               {"regex": "^(infra).*", "param_name": "run_infra_workflow"},
-              {"regex": "^(?!infra).*", "param_name": " ath"}
+              {"regex": "^(?!infra).*", "param_name": "run_app_workflow"}
             ]'
           additional-param-map: '{"run_trigger_workflow": false}'
           use-swissknife-sha: true
