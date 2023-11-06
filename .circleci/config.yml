@@ -132,7 +132,7 @@ jobs:
           command: |
             pwd
             ls -la
-            mkdir -p ./app-code-dir
+            # mkdir -p ./app-code-dir
             ls -la
             # # Move files and directories that don't start with 'infra/' to 'app-code-dir/'
             # # Exclude .git and .circleci directories
