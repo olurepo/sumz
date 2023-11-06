@@ -166,7 +166,8 @@ workflows:
   test_build:
     # when:
     #   or: [<< pipeline.parameters.run-app-workflow >>, << pipeline.parameters.app-build >>]
-    when: << pipeline.parameters.app-build >>
+    when:
+      or: [<< pipeline.parameters.app-build >>, << pipeline.parameters.infra-build >>]
     jobs:
       - run_tests:
           name: run_test_dev
