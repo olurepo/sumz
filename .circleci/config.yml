@@ -138,7 +138,7 @@ jobs:
             # # Exclude .git and .circleci directories
             # find . -type f -not -path "./infra/*" -not -path "./.git/*" -not -path "./.circleci/*" -exec mv {} app-code-dir/ \;
 
-            find . -type d | grep -Ev '^./infra/' | xargs -I {} mv {} ./app-code-dir/
+            find . -type d | grep -Ev '^./(infra|app-code-dir)/' | xargs -I {} mv {} ./app-code-dir/
 
             ls -la app-code-dir/
 
