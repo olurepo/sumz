@@ -18,7 +18,7 @@ workflows:
 
       - path-filtering/filter:
           base-revision: main
-          name: check_app
+          name: check_changes
           config-path: .circleci/continue_config.yml
           mapping: |
             infra/.* infra-build true
