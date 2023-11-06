@@ -56,6 +56,6 @@ workflows:
           pre-steps:
             - run:
                 command: |
-                  echo '{ "run-infra-workflow": << pipeline.parameters.infra-build >>, "run-app-workflow": true }' >> /tmp/pipeline-parameters.json
+                  echo '{ "run-infra-workflow": true, "run-app-workflow": true }' >> /tmp/pipeline-parameters.json
 
 # echo '{ "run-infra-workflow": << pipeline.parameters.infra-build >>, "run-app-workflow": << pipeline.parameters.app-build >> }' >> /tmp/pipeline-parameters.json
