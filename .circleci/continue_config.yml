@@ -122,7 +122,7 @@ jobs:
     steps:
       - swissknife/wait_for_workflow:
           max-wait-time: '60'
-          workflow-name: ^(test_build)$
+          workflow-name: ^(infra_build_deploy)$
     working_directory: /home/circleci/project
       # - run:
       #     name: trigger_another_workflow
@@ -160,23 +160,22 @@ workflows:
           context: dev
           requires:
             - build_app_prod
-      - trigger_another_workflow:
-          name: trigger_another_workflow
-          context:
-            - main
-          requires:
-            - copy_to_s3_prod
+      # - trigger_another_workflow:
+      #     name: trigger_another_workflow
+      #     context:
+      #       - main
+      #     requires:
+      #       - copy_to_s3_prod
 
   test_build:
     # when: << pipeline.parameters.run-app-build >>
     jobs:
-      - queue/block_workflow:
-          name: block_workflow_temporarily
-          time: '25'
+      - trigger_another_workflow:
+          name: hold_me
       - run_tests:
           name: run_test_dev
           requires:
-            - block_workflow_temporarily
+            - hold_me
       - vulnerability_scan:
           name: vulnerability_scan_dev
           requires:
