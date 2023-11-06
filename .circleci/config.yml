@@ -176,27 +176,27 @@ workflows:
           requires:
             - build_app
 
-  app-tests:
-    # when: << pipeline.parameters.run_app_workflow >>
-    jobs:
-      - run_tests:
-          # dir: "(?!infra/)"
-          name: Infra tests
-      - vulnerability_scan:
-          name: vulnerability scan
-          requires:
-            - Infra tests
-      - build_app:
-          name: build_app
-          context: prod
-          env: prod
-          requires:
-            - vulnerability scan
-      - copy_to_s3:
-          name: copy_to_s3_prod
-          context: dev
-          requires:
-            - build_app
+  # app-tests:
+  #   # when: << pipeline.parameters.run_app_workflow >>
+  #   jobs:
+  #     - run_tests:
+  #         # dir: "(?!infra/)"
+  #         name: Infra tests
+  #     - vulnerability_scan:
+  #         name: vulnerability scan
+  #         requires:
+  #           - Infra tests
+  #     - build_app:
+  #         name: build_app
+  #         context: prod
+  #         env: prod
+  #         requires:
+  #           - vulnerability scan
+  #     - copy_to_s3:
+  #         name: copy_to_s3_prod
+  #         context: dev
+  #         requires:
+  #           - build_app
 
   trigger-needed-workflows:
     when: << pipeline.parameters.run_trigger_workflow >>
