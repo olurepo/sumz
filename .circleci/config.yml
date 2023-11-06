@@ -131,7 +131,7 @@ jobs:
           name: Define Include Pattern
           command: |
             # Define a regex pattern to include files and directories in "run_app_workflow"
-            include_pattern = "(index|src|package)"
+            include_pattern = "index|src|package"
             echo $include_pattern
       - swissknife/trigger-workflows-for-all-modified:
           base-branch: main
