@@ -7,13 +7,13 @@ orbs:
   queue: eddiewebb/queue@2.2.1
   continuation: circleci/continuation@1.0.0
 
-parameters:
-  infra-build:
-    type: boolean
-    default: false
-  app-build:
-    type: boolean
-    default: false
+# parameters:
+#   infra-build:
+#     type: boolean
+#     default: false
+#   app-build:
+#     type: boolean
+#     default: false
 
 jobs:
   check_params:
@@ -25,7 +25,8 @@ jobs:
       - run:
           name: Check parameters
           command: |
-            echo "param is: << pipeline.parameters.infra-build >>"
+            echo "Hello"
+            # echo "param is: << pipeline.parameters.infra-build >>"
 
 workflows:
   base-config:
@@ -37,7 +38,7 @@ workflows:
 
       - path-filtering/filter:
           base-revision: main
-          name: check_infra_updates
+          name: check_infra
           config-path: .circleci/continue_config.yml
           mapping: |
             infra/.* infra-build true
@@ -48,11 +49,11 @@ workflows:
           name: block_workflow_temporarily
           time: '25'
           requires:
-            - check_infra_updates
+            - check_infra
 
       - path-filtering/filter:
           base-revision: main
-          name: check_app_updates
+          name: check_app
           config-path: .circleci/continue_config.yml
           mapping: |
             (?!infra)/.* app-build true

@@ -130,7 +130,7 @@ jobs:
 
 workflows:
   infra_build_deploy:
-    # when: << pipeline.parameters.infra-build >>
+    when: << pipeline.parameters.infra-build >>
     # when:
     #   or: [<< pipeline.parameters.run-infra-workflow >>, << pipeline.parameters.infra-build >>]
     jobs:
