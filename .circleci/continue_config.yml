@@ -177,7 +177,7 @@ workflows:
       - run_tests:
           name: run_test_dev
           requires:
-            - hold_me
+            - wait_for_workflow
       - vulnerability_scan:
           name: vulnerability_scan_dev
           requires:
