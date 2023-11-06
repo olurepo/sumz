@@ -42,6 +42,12 @@ workflows:
           config-path: .circleci/continue_config.yml
           mapping: |
             infra/.* infra-build true
+          requires:
+            - block_workflow_temporarily
+      - path-filtering/filter:
+          base-revision: main
+          config-path: .circleci/continue_config.yml
+          mapping: |
             (?!infra)/.* app-build true
           requires:
             - block_workflow_temporarily
