@@ -142,6 +142,7 @@ jobs:
           name: Debug Modified Files
           command: |
             git diff --name-only origin/main..HEAD
+            ls -la
 
 
 workflows:
