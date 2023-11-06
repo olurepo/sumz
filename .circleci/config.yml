@@ -154,23 +154,23 @@ workflows:
   infra-tests:
     when: << pipeline.parameters.run_infra_workflow >>
     jobs:
-      - queue/block_workflow:
-          name: block_workflow_temporarily
-          time: '25'
+      # - queue/block_workflow:
+      #     name: block_workflow_temporarily
+      #     time: '25'
       - run_tests:
-          # dir: infra
           name: Infra tests
-          requires:
-            - block_workflow_temporarily
+          # requires:
+          #   - block_workflow_temporarily
       - vulnerability_scan:
           # dir: infra
           name: vulnerability scan
           requires:
             - Infra tests
       - build_app:
-          # dir: infra
           name: build_app
-          context: prod
+          context:
+            - main
+            - prod
           env: prod
           requires:
             - vulnerability scan
@@ -183,9 +183,14 @@ workflows:
   app-tests:
     when: << pipeline.parameters.run_app_workflow >>
     jobs:
+      - queue/block_workflow:
+          name: block_workflow_temporarily
+          time: '25'
       - run_tests:
           # dir: "(?!infra/)"
           name: Infra tests
+          requires:
+            - block_workflow_temporarily
       - vulnerability_scan:
           name: vulnerability scan
           requires:
