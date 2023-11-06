@@ -28,11 +28,11 @@ jobs:
   run_tests:
     docker:
       - image: cimg/node:18.15.0
-    working_directory: /home/circleci/project/
-    parameters:
-      dir:
-        type: string
-        description: The directory of app/infra.
+    # working_directory: /home/circleci/project/
+    # parameters:
+    #   dir:
+    #     type: string
+    #     description: The directory of app/infra.
     steps:
       - checkout
       - run: sudo npm install
@@ -149,6 +149,14 @@ jobs:
           additional-param-map: '{"run_trigger_workflow": false}'
           use-swissknife-sha: true
 
+          # code-param-name-map:
+          #   '[
+          #     {"regex": "^(infra).*", "param_name": "run_infra_workflow"},
+          #     {"regex": "^(?!infra/).*", "param_name": "run_app_workflow"}
+          #   ]'
+          # additional-param-map: '{"run_trigger_workflow": false}'
+          # use-swissknife-sha: true
+
 workflows:
   infra-tests:
     when: << pipeline.parameters.run_infra_workflow >>
@@ -157,7 +165,7 @@ workflows:
           name: block_workflow_temporarily
           time: '25'
       - run_tests:
-          dir: infra
+          # dir: infra
           name: Infra tests
           requires:
             - block_workflow_temporarily
@@ -183,7 +191,7 @@ workflows:
     when: << pipeline.parameters.run_app_workflow >>
     jobs:
       - run_tests:
-          dir: "(?!infra/)"
+          # dir: "(?!infra/)"
           name: Infra tests
       - vulnerability_scan:
           name: vulnerability scan
