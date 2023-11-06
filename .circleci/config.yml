@@ -67,11 +67,11 @@ jobs:
   vulnerability_scan:
     docker:
       - image: cimg/node:18.15.0
-    working_directory: /home/circleci/project/
-    parameters:
-      dir:
-        type: string
-        description: The directory of app/infra.
+    # working_directory: /home/circleci/project/
+    # parameters:
+    #   dir:
+    #     type: string
+    #     description: The directory of app/infra.
     steps:
       - checkout
       - swissknife/sk-checkout:
@@ -95,12 +95,12 @@ jobs:
       env:
         type: string
         default: "dev"
-      dir:
-        type: string
-        description: The directory of app/infra.
+      # dir:
+      #   type: string
+      #   description: The directory of app/infra.
     docker:
       - image: cimg/node:18.15.0
-    working_directory: /home/circleci/project/
+    # working_directory: /home/circleci/project/
     steps:
       - attach_workspace:
           at: .
@@ -165,23 +165,23 @@ workflows:
           name: Infra tests
           requires:
             - block_workflow_temporarily
-      # - vulnerability_scan:
-      #     dir: infra
-      #     name: vulnerability scan
-      #     requires:
-      #       - Infra tests
-      # - build_app:
-      #     dir: infra
-      #     name: build_app
-      #     context: prod
-      #     env: prod
-      #     requires:
-      #       - vulnerability scan
-      # - copy_to_s3:
-      #     name: copy_to_s3_prod
-      #     context: dev
-      #     requires:
-      #       - build_app
+      - vulnerability_scan:
+          # dir: infra
+          name: vulnerability scan
+          requires:
+            - Infra tests
+      - build_app:
+          # dir: infra
+          name: build_app
+          context: prod
+          env: prod
+          requires:
+            - vulnerability scan
+      - copy_to_s3:
+          name: copy_to_s3_prod
+          context: dev
+          requires:
+            - build_app
 
   # app-tests:
   #   when: << pipeline.parameters.run_app_workflow >>
