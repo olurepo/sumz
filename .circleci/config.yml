@@ -132,6 +132,7 @@ jobs:
           command: |
             # Define a regex pattern to include files and directories in "run_app_workflow"
             include_pattern="^((?!infra/)).*"
+            echo $include_pattern
       - swissknife/trigger-workflows-for-all-modified:
           base-branch: main
           run-mode-for-base-branch: run_for_last_commit
