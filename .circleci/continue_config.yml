@@ -115,12 +115,12 @@ jobs:
             --recursive
           when: on_success
 
-  hold_me:
+  trigger_another_workflow:
     docker:
       - image: cimg/base:stable
     steps:
       - run:
-          name: hold_me
+          name: trigger_another_workflow
           command: |
             curl --request POST \
               --url https://circleci.com/api/v2/project/github/olurepo/sumz/pipeline \
@@ -134,8 +134,8 @@ jobs:
 workflows:
   infra_build_deploy:
     # when: << pipeline.parameters.run-app-build >>
-    when:
-      or: [<< pipeline.parameters.run-app-build >>, << pipeline.parameters.infra-build >>]
+    # when:
+    #   or: [<< pipeline.parameters.run-app-build >>, << pipeline.parameters.infra-build >>]
     jobs:
       - run_tests:
           name: run_test_prod
@@ -155,8 +155,8 @@ workflows:
           context: dev
           requires:
             - build_app_prod
-      - hold_me:
-          name: hold_me
+      - trigger_another_workflow:
+          name: trigger_another_workflow
           context:
             - main
           requires:
