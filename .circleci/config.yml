@@ -74,8 +74,6 @@ jobs:
     #     description: The directory of app/infra.
     steps:
       - checkout
-      - swissknife/sk-checkout:
-          swissknife_sha: << pipeline.parameters.swissknife_sha >>
       - run:
           name: Instance npm Dependencies
           command: |
