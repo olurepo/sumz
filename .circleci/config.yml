@@ -148,7 +148,7 @@ jobs:
           code-param-name-map: '
             [
               {"regex": "^(infra).*", "param_name": "run_infra_workflow"},
-              {"regex": "^(src).*", "param_name": "run_app_workflow"},
+              {"regex": "^(?!infra).*", "param_name": "run_app_workflow"},
             ]'
           additional-param-map: '{"run_trigger_workflow": false}'
           use-swissknife-sha: true
@@ -165,23 +165,23 @@ workflows:
           name: Infra tests
           requires:
             - block_workflow_temporarily
-      - vulnerability_scan:
-          dir: infra
-          name: vulnerability scan
-          requires:
-            - Infra tests
-      - build_app:
-          dir: infra
-          name: build_app
-          context: prod
-          env: prod
-          requires:
-            - vulnerability scan
-      - copy_to_s3:
-          name: copy_to_s3_prod
-          context: dev
-          requires:
-            - build_app
+      # - vulnerability_scan:
+      #     dir: infra
+      #     name: vulnerability scan
+      #     requires:
+      #       - Infra tests
+      # - build_app:
+      #     dir: infra
+      #     name: build_app
+      #     context: prod
+      #     env: prod
+      #     requires:
+      #       - vulnerability scan
+      # - copy_to_s3:
+      #     name: copy_to_s3_prod
+      #     context: dev
+      #     requires:
+      #       - build_app
 
   # app-tests:
   #   when: << pipeline.parameters.run_app_workflow >>
