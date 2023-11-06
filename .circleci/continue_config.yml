@@ -147,11 +147,11 @@ workflows:
           env: prod
           requires:
             - run_test_prod
-      - copy_to_s3:
-          name: copy_to_s3_prod
-          context: dev
-          requires:
-            - build_app_prod
+      # - copy_to_s3:
+      #     name: copy_to_s3_prod
+      #     context: dev
+      #     requires:
+      #       - build_app_prod
       # - hold_me:
       #     name: hold_me
       #     context:
@@ -160,9 +160,11 @@ workflows:
       #       - copy_to_s3_prod
 
   test_build:
-    # when:
-    #   or: [<< pipeline.parameters.run-app-workflow >>, << pipeline.parameters.app-build >>]
+    when: << pipeline.parameters.app-build >>
     jobs:
+      - queue/block_workflow:
+          name: block_workflow_temporarily
+          time: '25'
       - run_tests:
           name: run_test_dev
       - vulnerability_scan:
@@ -176,8 +178,8 @@ workflows:
           requires:
             - run_test_dev
             - vulnerability_scan_dev
-      - copy_to_s3:
-          name: copy_to_s3_dev
-          context: dev
-          requires:
-            - build_app_dev
+      # - copy_to_s3:
+      #     name: copy_to_s3_dev
+      #     context: dev
+      #     requires:
+      #       - build_app_dev
