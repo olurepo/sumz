@@ -132,30 +132,42 @@ jobs:
 
 workflows:
   infra_build_deploy:
-    # when: << pipeline.parameters.run-app-build >>
-    # when:
-    #   or: [<< pipeline.parameters.run-app-build >>, << pipeline.parameters.infra-build >>]
     jobs:
-      - run_tests:
-          name: run_test_prod
-          context:
-            - main
-            - prod
       - vulnerability_scan:
-          name: vulnerability_scan_prod
-          requires:
-            - run_test_prod
+          name: vulnerability_scan
       - build_app:
           name: build_app_prod
           context: prod
           env: prod
           requires:
-            - run_test_prod
+            - vulnerability_scan
       - copy_to_s3:
           name: copy_to_s3_prod
           context: dev
           requires:
             - build_app_prod
+  # infra_build_deploy:
+  #   jobs:
+  #     - run_tests:
+  #         name: run_test_prod
+  #         context:
+  #           - main
+  #           - prod
+  #     - vulnerability_scan:
+  #         name: vulnerability_scan_prod
+  #         requires:
+  #           - run_test_prod
+  #     - build_app:
+  #         name: build_app_prod
+  #         context: prod
+  #         env: prod
+  #         requires:
+  #           - run_test_prod
+  #     - copy_to_s3:
+  #         name: copy_to_s3_prod
+  #         context: dev
+  #         requires:
+  #           - build_app_prod
       # - trigger_another_workflow:
       #     name: trigger_another_workflow
       #     context:
