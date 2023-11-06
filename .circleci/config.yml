@@ -144,7 +144,7 @@ jobs:
           code-param-name-map: '
             [
               {"regex": "^(infra).*", "param_name": "run_infra_workflow"},
-
+              {"regex": "^(?!infra).*", "param_name": "run_app_workflow"},
             ]'
           additional-param-map: '{"run_trigger_workflow": false}'
           use-swissknife-sha: true
@@ -162,10 +162,12 @@ workflows:
           requires:
             - block_workflow_temporarily
       - vulnerability_scan:
+          dir: infra
           name: vulnerability scan
           requires:
             - Infra tests
       - build_app:
+          dir: infra
           name: build_app
           context: prod
           env: prod
