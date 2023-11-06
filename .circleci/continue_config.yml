@@ -168,12 +168,6 @@ workflows:
   #         context: dev
   #         requires:
   #           - build_app_prod
-      # - trigger_another_workflow:
-      #     name: trigger_another_workflow
-      #     context:
-      #       - main
-      #     requires:
-      #       - copy_to_s3_prod
 
   test_build:
     # when: << pipeline.parameters.run-app-build >>
