@@ -31,6 +31,9 @@ jobs:
     docker:
       - image: cimg/node:18.15.0
     steps:
+      - swissknife/wait_for_workflow:
+          max-wait-time: '180'
+          workflow-name: infra_build_deploy
       - checkout
       - run: sudo npm install
       # - run:
@@ -115,15 +118,6 @@ jobs:
           arguments:
             --recursive
           when: on_success
-
-  wait_for_workflow:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - swissknife/wait_for_workflow:
-    #       max-wait-time: '180'
-    #       workflow-name: infra_build_deploy
-    # working_directory: /home/circleci/project
       # - run:
       #     name: trigger_another_workflow
       #     command: |
@@ -170,14 +164,9 @@ workflows:
   test_build:
     # when: << pipeline.parameters.run-app-build >>
     jobs:
-      - wait_for_workflow:
-          name: wait_for_workflow
-          context:
-            - main
       - run_tests:
           name: run_test_dev
-          requires:
-            - wait_for_workflow
+
       - vulnerability_scan:
           name: vulnerability_scan_dev
           requires:
