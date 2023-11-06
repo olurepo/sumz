@@ -1,0 +1,183 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+version: 2.1
+
+orbs:
+  queue: eddiewebb/queue@2.2.1
+  node: circleci/node@5.1.0
+  snyk: snyk/snyk@1.5.0
+  aws-cli: circleci/aws-cli@3.1.2
+  aws-s3: circleci/aws-s3@3.1.1
+
+parameters:
+  infra-build:
+    type: boolean
+    default: false
+  app-build:
+    type: boolean
+    default: false
+  # run-infra-workflow:
+  #   type: boolean
+  #   default: false
+  # run-app-workflow:
+  #   type: boolean
+  #   default: false
+
+jobs:
+  run_tests:
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run: sudo npm install
+      # - run:
+      #     command: |
+      #       npm run lint
+      #       LINT_EXIT_CODE=$?
+      #       if [ $LINT_EXIT_CODE -ne 0 ]; then
+      #         echo "Linting failed with exit code: $LINT_EXIT_CODE"
+      #         # set a flag or variable here to track the failure
+      #         LINT_FAILED=true
+      #       fi
+      #       # continue with the rest of the pipeline
+      #       if [ "$LINT_FAILED" = "true" ]; then
+      #         echo "Linting failed but the pipeline will continue."
+      #       fi
+      # - run:
+      #     command: |
+      #       set -e
+      #       mkdir /tmp/test_reports
+      #       cat $LINT_EXIT_CODE > /tmp/test_reports/lint_error.txt
+      #     when: always
+      # - store_test_results:
+      #     path: /tmp/test_reports
+      #     destination: /
+
+  vulnerability_scan:
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run:
+          name: Instance npm Dependencies
+          command: |
+            sudo pnpm install
+      - run:
+          name: Snyk Env Var
+          command: |
+            echo $SNYK_TOKEN
+      # - snyk/scan
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  build_app:
+    parameters:
+      env:
+        type: string
+        default: "dev"
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - attach_workspace:
+          at: .
+      - checkout
+      - run:
+          name: Install npm Dependencies
+          command: |
+            sudo pnpm install
+      - run:
+          name: Run npm Build
+          command: |
+            pnpm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  copy_to_s3:
+    docker:
+      - image: cimg/python:3.8.15
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check Dist Dir
+          command: ls -la ./dist
+      - aws-cli/setup
+      - aws-s3/copy:
+          from: ./dist
+          to: s3://sumz-bucket/$BASE_VERSION.<< pipeline.number >>/
+          arguments:
+            --recursive
+          when: on_success
+
+  # hold_me:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - run:
+  #         name: hold_me
+  #         command: |
+  #           curl --request POST \
+  #             --url https://circleci.com/api/v2/project/github/olurepo/sumz/pipeline \
+  #             --header 'Circle-Token: ${CIRCLE_TOKEN}' \
+  #             --header 'content-type: application/json' \
+  #             --data '{"branch":"'${CIRCLE_BRANCH}'","parameters":{"infra-build": true, "app-build": true}}'
+  #             echo "Circle-Token: ${CIRCLE_TOKEN}"
+  #             echo "${CIRCLE_BRANCH}"
+
+
+workflows:
+  infra_build_deploy:
+    when: << pipeline.parameters.infra-build >>
+    # when:
+    #   or: [<< pipeline.parameters.run-infra-workflow >>, << pipeline.parameters.infra-build >>]
+    jobs:
+      - run_tests:
+          name: run_test_prod
+          context: prod
+      - vulnerability_scan:
+          name: vulnerability_scan_prod
+          requires:
+            - run_test_prod
+      - build_app:
+          name: build_app_prod
+          context: prod
+          env: prod
+          requires:
+            - run_test_prod
+      - copy_to_s3:
+          name: copy_to_s3_prod
+          context: dev
+          requires:
+            - build_app_prod
+      # - hold_me:
+      #     name: hold_me
+      #     context:
+      #       - main
+      #     requires:
+      #       - copy_to_s3_prod
+
+  test_build:
+    # when:
+    #   or: [<< pipeline.parameters.run-app-workflow >>, << pipeline.parameters.app-build >>]
+    jobs:
+      - run_tests:
+          name: run_test_dev
+      - vulnerability_scan:
+          name: vulnerability_scan_dev
+          requires:
+            - run_test_dev
+      - build_app:
+          name: build_app_dev
+          context: dev
+          env: dev
+          requires:
+            - run_test_dev
+            - vulnerability_scan_dev
+      - copy_to_s3:
+          name: copy_to_s3_dev
+          context: dev
+          requires:
+            - build_app_dev
