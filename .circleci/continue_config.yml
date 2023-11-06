@@ -123,14 +123,14 @@ jobs:
   #             --url https://circleci.com/api/v2/project/github/olurepo/sumz/pipeline \
   #             --header 'Circle-Token: ${CIRCLE_TOKEN}' \
   #             --header 'content-type: application/json' \
-  #             --data '{"branch":"'${CIRCLE_BRANCH}'","parameters":{"infra-build": true, "app-build": true}}'
+  #             --data '{"branch":"'${CIRCLE_BRANCH}'","parameters":{"app-build": true}}'
   #             echo "Circle-Token: ${CIRCLE_TOKEN}"
   #             echo "${CIRCLE_BRANCH}"
 
 
 workflows:
   infra_build_deploy:
-    when: << pipeline.parameters.infra-build >>
+    # when: << pipeline.parameters.infra-build >>
     # when:
     #   or: [<< pipeline.parameters.run-infra-workflow >>, << pipeline.parameters.infra-build >>]
     jobs:
