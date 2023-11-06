@@ -90,6 +90,9 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - swissknife/wait_for_workflow:
+          max-wait-time: '180'
+          workflow-name: ^(infra-tests)$
       - checkout
       - run:
           name: Install npm Dependencies
