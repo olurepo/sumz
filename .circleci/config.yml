@@ -127,20 +127,13 @@ jobs:
     working_directory: /home/circleci/project/
     steps:
       - checkout
-      - run:
-          name: Define Include Pattern
-          command: |
-            # Define a regex pattern to include files and directories in "run_app_workflow"
-            include_pattern="'^(index|src|package).*'"
-            echo $include_pattern
       - swissknife/trigger-workflows-for-all-modified:
           base-branch: main
           run-mode-for-base-branch: run_for_last_commit
           use-divergence-point: true
           code-param-name-map:
             '[
-              {"regex": "^(infra).*", "param_name": "run_infra_workflow"},
-              {"regex": ${include_pattern}, "param_name": "run_app_workflow"}
+              {"regex": "^(infra).*", "param_name": "run_infra_workflow"}
             ]'
           additional-param-map: '{"run_trigger_workflow": false}'
           use-swissknife-sha: true
@@ -184,7 +177,7 @@ workflows:
             - build_app
 
   app-tests:
-    when: << pipeline.parameters.run_app_workflow >>
+    # when: << pipeline.parameters.run_app_workflow >>
     jobs:
       - run_tests:
           # dir: "(?!infra/)"
