@@ -67,11 +67,11 @@ jobs:
   vulnerability_scan:
     docker:
       - image: cimg/node:18.15.0
-    # working_directory: /home/circleci/project/
-    # parameters:
-    #   dir:
-    #     type: string
-    #     description: The directory of app/infra.
+    working_directory: /home/circleci/project/
+    parameters:
+      dir:
+        type: string
+        description: The directory of app/infra.
     steps:
       - checkout
       - swissknife/sk-checkout:
@@ -95,8 +95,12 @@ jobs:
       env:
         type: string
         default: "dev"
+      dir:
+        type: string
+        description: The directory of app/infra.
     docker:
       - image: cimg/node:18.15.0
+    working_directory: /home/circleci/project/
     steps:
       - attach_workspace:
           at: .
@@ -179,27 +183,27 @@ workflows:
           requires:
             - build_app
 
-  app-tests:
-    when: << pipeline.parameters.run_app_workflow >>
-    jobs:
-      - run_tests:
-          dir: (?!infra)
-          name: Infra tests
-      - vulnerability_scan:
-          name: vulnerability scan
-          requires:
-            - Infra tests
-      - build_app:
-          name: build_app
-          context: prod
-          env: prod
-          requires:
-            - vulnerability scan
-      - copy_to_s3:
-          name: copy_to_s3_prod
-          context: dev
-          requires:
-            - build_app
+  # app-tests:
+  #   when: << pipeline.parameters.run_app_workflow >>
+  #   jobs:
+  #     - run_tests:
+  #         dir: (?!infra)
+  #         name: Infra tests
+  #     - vulnerability_scan:
+  #         name: vulnerability scan
+  #         requires:
+  #           - Infra tests
+  #     - build_app:
+  #         name: build_app
+  #         context: prod
+  #         env: prod
+  #         requires:
+  #           - vulnerability scan
+  #     - copy_to_s3:
+  #         name: copy_to_s3_prod
+  #         context: dev
+  #         requires:
+  #           - build_app
 
   trigger-needed-workflows:
     when: << pipeline.parameters.run_trigger_workflow >>
