@@ -22,9 +22,6 @@ parameters:
   # run-app-workflow:
   #   type: boolean
   #   default: false
-  run-app-build:
-    type: boolean
-    default: false
 
 jobs:
   run_tests:
@@ -32,7 +29,7 @@ jobs:
       - image: cimg/node:18.15.0
     steps:
       - swissknife/wait_for_workflow:
-          max-wait-time: '180'
+          max-wait-time: '1800'
           workflow-name: infra_build_deploy
       - checkout
       - run: sudo npm install
@@ -125,7 +122,7 @@ jobs:
       #         --url https://circleci.com/api/v2/project/github/olurepo/sumz/pipeline \
       #         --header 'Circle-Token: ${CIRCLE_TOKEN}' \
       #         --header 'content-type: application/json' \
-      #         --data '{"branch":"'${CIRCLE_BRANCH}'","parameters":{"run-app-build": true}}'
+      #         --data '{"branch":"'${CIRCLE_BRANCH}'","parameters":{"app-build": true}}'
       #         echo "Circle-Token: ${CIRCLE_TOKEN}"
       #         echo "${CIRCLE_BRANCH}"
 
@@ -170,7 +167,6 @@ workflows:
   #           - build_app_prod
 
   test_build:
-    # when: << pipeline.parameters.run-app-build >>
     jobs:
       - run_tests:
           name: run_test_dev

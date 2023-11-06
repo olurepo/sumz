@@ -1,25 +1,131 @@
-version: '2.1'
-
-setup: true
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+version: 2.1
 
 orbs:
-  path-filtering: circleci/path-filtering@1.0.0
-  queue: eddiewebb/queue@2.2.1
+  node: circleci/node@5.1.0
+  snyk: snyk/snyk@1.5.0
+  aws-cli: circleci/aws-cli@3.1.2
+  aws-s3: circleci/aws-s3@3.1.1
+
+# Define a job to be invoked later in a workflow.
+jobs:
+  run_test:
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run: sudo npm install
+      - run: mkdir ~/junit
+      - run:
+          command: mocha test --reporter mocha-junit-reporter || true
+          environment:
+            MOCHA_FILE: ~/junit/test-results.xml
+          when: always
+      - store_test_results:
+          path: ~/junit
+
+  vulnerability_scan:
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run:
+          name: Instance npm Dependencies
+          command: |
+            sudo npm install -g
+      - run:
+          name: Snyk Env Var
+          command: |
+            echo $SNYK_TOKEN
+      # - snyk/scan
+
+  build_app:
+    parameters:
+      env:
+        type: string
+        default: "dev"
+    docker:
+      - image: cimg/node:18.15.0
+    steps:
+      - checkout
+      - run:
+          name: Install npm Dependencies
+          command: |
+            sudo pnpm install
+      - run:
+          name: Run npm Build
+          command: |
+            pnpm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  copy_to_s3:
+    docker:
+      - image: cimg/python:3.8.15
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check Dist Dir
+          command: ls -la ./dist
+      - aws-cli/setup
+      - aws-s3/copy:
+          from: ./dist
+          to: s3://sumz-bucket/$BASE_VERSION.<< pipeline.number >>/
+          arguments:
+            --recursive
+          when: on_success
+
 
 workflows:
-  base-config:
+  infra_build_deploy:
     jobs:
-
-      - queue/block_workflow:
-          name: block_workflow_temporarily
-          time: '25'
-
-      - path-filtering/filter:
-          base-revision: main
-          name: check_changes
-          config-path: .circleci/continue_config.yml
-          mapping: |
-            infra/.* infra-build true
-            (?!infra)/.* app-build true
+      - run_test:
+          name: run_test_dev
+          context:
+            - main
+      - vulnerability_scan:
+          name: vulnerability_scan_dev
           requires:
-            - block_workflow_temporarily
+            - run_test_dev
+      - build_app:
+          name: build_app_dev
+          context: dev
+          env: dev
+          requires:
+            - run_test_dev
+            - vulnerability_scan_dev
+      - copy_to_s3:
+          name: copy_to_s3_dev
+          context: dev
+          requires:
+            - build_app_dev
+          filters:
+            branches:
+              only:
+              - main
+
+  test_build_deploy:
+    jobs:
+      - run_test:
+          name: run_test_stg
+          context:
+            - stg
+            - main
+      - vulnerability_scan:
+          name: vulnerability_scan_stg
+          requires:
+            - run_test_stg
+      - build_app:
+          name: build_app_stg
+          context: stg
+          env: stg
+          requires:
+            - run_test_stg
+      # - copy_to_s3:
+      #     name: copy_to_s3_stg
+      #     context: stg
+      #     requires:
+      #       - build_app_stg

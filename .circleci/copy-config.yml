@@ -1,0 +1,25 @@
+version: '2.1'
+
+setup: true
+
+orbs:
+  path-filtering: circleci/path-filtering@1.0.0
+  queue: eddiewebb/queue@2.2.1
+
+workflows:
+  base-config:
+    jobs:
+
+      - queue/block_workflow:
+          name: block_workflow_temporarily
+          time: '25'
+
+      - path-filtering/filter:
+          base-revision: main
+          name: check_changes
+          config-path: .circleci/continue_config.yml
+          mapping: |
+            infra/.* infra-build true
+            (?!infra)/.* app-build true
+          requires:
+            - block_workflow_temporarily
