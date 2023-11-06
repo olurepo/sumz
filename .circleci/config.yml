@@ -132,7 +132,9 @@ jobs:
           command: |
             mkdir -p app-code-dir
             # Move files and directories that don't start with 'infra/' to 'app-code-dir/'
-            find . -not -path "./infra/*" -exec mv {} app-code-dir/ \;
+            # Exclude .git and .circleci directories
+            find . -type f -not -path "./infra/*" -not -path "./.git/*" -not -path "./.circleci/*" -exec mv {} app-code-dir/ \;
+
       - swissknife/trigger-workflows-for-all-modified:
           base-branch: main
           run-mode-for-base-branch: run_for_last_commit
