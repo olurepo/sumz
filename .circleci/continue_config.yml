@@ -124,8 +124,8 @@ jobs:
 
 workflows:
   infra_build_deploy:
-    when:
-      or: [<< pipeline.parameters.run-infra-workflow >>, << pipeline.parameters.infra-build >>]
+    # when:
+    #   or: [<< pipeline.parameters.run-infra-workflow >>, << pipeline.parameters.infra-build >>]
     jobs:
       - run_tests:
           name: run_test_prod
