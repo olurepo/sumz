@@ -190,7 +190,7 @@ workflows:
     when: << pipeline.parameters.run_app_workflow >>
     jobs:
       - run_tests:
-          dir: (?!infra)
+          dir: "(?!infra).*"
           name: Infra tests
       - vulnerability_scan:
           name: vulnerability scan
