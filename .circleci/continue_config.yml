@@ -172,6 +172,8 @@ workflows:
     jobs:
       - trigger_another_workflow:
           name: hold_me
+          context:
+            - main
       - run_tests:
           name: run_test_dev
           requires:
