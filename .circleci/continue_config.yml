@@ -116,13 +116,13 @@ jobs:
             --recursive
           when: on_success
 
-  trigger_another_workflow:
+  wait_for_workflow:
     docker:
       - image: cimg/base:stable
     steps:
       - swissknife/wait_for_workflow:
           max-wait-time: '180'
-          workflow-name: ^(infra_build_deploy)$
+          workflow-name: infra_build_deploy
     working_directory: /home/circleci/project
       # - run:
       #     name: trigger_another_workflow
@@ -170,13 +170,8 @@ workflows:
   test_build:
     # when: << pipeline.parameters.run-app-build >>
     jobs:
-      # - trigger_another_workflow:
-      #     name: hold_me
-      #     context:
-      #       - main
-      - swissknife/wait_for_workflow:
-          max-wait-time: '180'
-          workflow-name: ^(infra_build_deploy)$
+      - wait_for_workflow:
+          name: wait_for_workflow
           context:
             - main
       - run_tests:
