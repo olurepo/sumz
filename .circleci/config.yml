@@ -19,9 +19,9 @@ parameters:
   run_trigger_workflow:
     default: true
     type: boolean
-  swissknife_sha:
-    default: ""
-    type: string
+  # swissknife_sha:
+  #   default: ""
+  #   type: string
 
 jobs:
   run_tests:
