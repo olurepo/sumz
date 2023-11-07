@@ -35,8 +35,8 @@ jobs:
     steps:
       - checkout
       - run: sudo npm install
-      - swissknife/sk-checkout:
-          swissknife_sha: << pipeline.parameters.swissknife_sha >>
+      # - swissknife/sk-checkout:
+      #     swissknife_sha: << pipeline.parameters.swissknife_sha >>
       # - run:
       #     command: |
       #       npm run lint
