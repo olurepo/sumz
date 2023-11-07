@@ -192,6 +192,9 @@ workflows:
     jobs:
       - wait-for-workflows:
           name: wait_for_workflows
+          context:
+            - main
+            - prod
       - run_tests:
           name: Infra tests
           requires:
