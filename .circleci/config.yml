@@ -190,11 +190,16 @@ workflows:
   app-tests:
     when: << pipeline.parameters.run_app_workflow >>
     jobs:
+      - hold:
+          type: approval
+          name: hold
       - wait-for-workflows:
           name: wait_for_workflows
           context:
             - main
             - prod
+          requires:
+            - hold
       - run_tests:
           name: Infra tests
           requires:
