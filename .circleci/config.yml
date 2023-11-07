@@ -24,14 +24,6 @@ parameters:
     type: string
 
 jobs:
-  wait-for-workflows:
-    docker:
-      - image: cimg/node:18.15.0
-    steps:
-      - checkout
-      - swissknife/wait_for_workflow:
-          max-wait-time: '1800'
-          workflow-name: '^(infra-tests)$'
   run_tests:
     docker:
       - image: cimg/node:18.15.0
@@ -190,20 +182,13 @@ workflows:
   app-tests:
     when: << pipeline.parameters.run_app_workflow >>
     jobs:
-      - hold:
-          type: approval
-          name: hold
-      - wait-for-workflows:
-          name: wait_for_workflows
-          context:
-            - main
-            - prod
-          requires:
-            - hold
+      - swissknife/wait_for_workflow:
+          max-wait-time: '180'
+          workflow-name: ^(infra-tests)$
       - run_tests:
           name: Infra tests
           requires:
-            - wait_for_workflows
+            - swissknife/wait_for_workflow
           context:
             - main
             - prod
