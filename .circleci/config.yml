@@ -182,13 +182,13 @@ workflows:
   app-tests:
     when: << pipeline.parameters.run_app_workflow >>
     jobs:
-      - swissknife/wait_for_workflow:
-          max-wait-time: '180'
-          workflow-name: ^(infra-tests)$
+      # - swissknife/wait_for_workflow:
+      #     max-wait-time: '180'
+      #     workflow-name: ^(infra-tests)$
       - run_tests:
           name: Infra tests
-          requires:
-            - swissknife/wait_for_workflow
+          # requires:
+          #   - swissknife/wait_for_workflow
           context:
             - main
             - prod
