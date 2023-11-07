@@ -34,6 +34,9 @@ jobs:
     #     type: string
     #     description: The directory of app/infra.
     steps:
+      - swissknife/wait_for_workflow:
+          max-wait-time: '1800'
+          workflow-name: '^(infra-tests)$'
       - checkout
       - run: sudo npm install
       - swissknife/sk-checkout:
@@ -88,9 +91,6 @@ jobs:
     docker:
       - image: cimg/node:18.15.0
     steps:
-      - swissknife/wait_for_workflow:
-          max-wait-time: '1800'
-          workflow-name: '^(infra-tests)$'
       - attach_workspace:
           at: .
       - checkout
@@ -161,6 +161,9 @@ workflows:
           name: Infra tests
           # requires:
           #   - block_workflow_temporarily
+          context:
+            - main
+            - prod
       - vulnerability_scan:
           # dir: infra
           name: vulnerability scan
@@ -191,6 +194,9 @@ workflows:
           name: Infra tests
           requires:
             - block_workflow_temporarily
+          context:
+            - main
+            - prod
       - vulnerability_scan:
           name: vulnerability scan
           requires:
